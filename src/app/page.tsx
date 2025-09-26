@@ -1,6 +1,12 @@
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@/components/ui/table"
 
 import DashboardCard from "@/components/ui/custom/dashboard-card";
 
@@ -8,6 +14,8 @@ import newsImg from "../../public/egNewsImg.jpg"
 import arsLogo from "../../public/arsenal_logo.png"
 import mcLogo from "../../public/mancity_logo.png"
 import newLogo from "../../public/newcastle_logo.png"
+import livLogo from "../../public/liverpool_logo.svg"
+import totLogo from "../../public/tott_logo.png"
 
 export default function Home() {
 
@@ -43,12 +51,6 @@ export default function Home() {
             </div>
           </DashboardCard>
 
-          {/* <Card className="flex-1 h-full min-h-0 px-6">
-            <CardTitle className="text-md font-bold">Last Result</CardTitle>
-            <CardContent className="h-full rounded-xl p-0 min-h-0">
-
-            </CardContent>
-          </Card> */}
         </div>
 
         <div className="h-[70%]">
@@ -58,14 +60,12 @@ export default function Home() {
               <Carousel className="relative h-full w-full">
                 <CarouselContent className="h-full min-h-0">
                   <CarouselItem className="pl-0">
-                    {/* Aspect-ratio wrapper provides explicit height */}
                     <div className="relative w-full aspect-[16/9] md:aspect-[21/9]">
                       <Image
                         src={newsImg}
                         alt="Arsenal News Image"
                         fill
                         className="object-cover object-center"
-                        sizes="(max-width: 768px) 100vw, 60vw"
                         priority
                       />
                     </div>
@@ -106,31 +106,81 @@ export default function Home() {
 
       </div>
       <div className="flex flex-col gap-y-6 w-[30%]">
-        <DashboardCard title="Upcoming">
-            <div className="flex flex-col items-center p-1">
-              <div className="flex justify-around w-full">
-                <div className="flex flex-col items-center font-bold">
-                  <Image src={arsLogo} alt="Arsenal Logo Badge" className="size-10"/>
-                  <p>Arsenal</p>
+        <DashboardCard title="Upcoming Match">
+          <div className="flex flex-col h-full">
+              <div className="flex flex-col items-center flex-1 p-1">
+                <div className="relative flex justify-between w-full">
+                  <div className="flex flex-col items-center font-bold">
+                    <Image src={arsLogo} alt="Arsenal Logo Badge" className="size-16"/>
+                    <p>Arsenal</p>
+                  </div>
+                  <p className="absolute left-1/2 -translate-x-1/2 bottom-0 -translate-y-1/3 text-4xl font-bold">vs.</p>
+                  <div className="flex flex-col items-center font-bold">
+                    <Image src={newLogo} alt="Newcastle Logo Badge" className="size-16"/>
+                    <p>Newcastle</p>
+                  </div>
                 </div>
-                <p className="text-4xl">vs.</p>
-                <div className="flex flex-col items-center font-bold">
-                  <Image src={newLogo} alt="Newcastle Logo Badge" className="size-10"/>
-                  <p>Newcastle</p>
+                <div className="text-center text-sm text-slate-600">
+                  <p>Sun, Sep 28 // 11:30am</p>
+                  <p>St. James Park</p>
                 </div>
               </div>
-              <div className="text-center">
-                <p>Sun Sep 28 - 16:30</p>
-                <p>St. James Park</p>
+              <div className="flex justify-around">
+                <div className="flex flex-col items-center font-bold">
+                  <p className="text-2xl">01</p>
+                  <p className="text-sm text-slate-600">Days</p>
+                </div>
+                <div className="flex flex-col items-center font-bold">
+                  <p className="text-2xl">20</p>
+                  <p className="text-sm text-slate-600">Hours</p>
+                </div>
+                <div className="flex flex-col items-center font-bold">
+                  <p className="text-2xl">24</p>
+                  <p className="text-sm text-slate-600">Mins</p>
+                </div>
+                <div className="flex flex-col items-center font-bold">
+                  <p className="text-2xl">08</p>
+                  <p className="text-sm text-slate-600">Secs</p>
+                </div>
               </div>
-            </div>
+          </div>
         </DashboardCard>
-        <Card className="flex-1 h-full min-h-0 px-6">
-          <CardTitle className="text-md font-bold">Standings</CardTitle>
-          <CardContent className="h-full rounded-xl p-0 min-h-0">
-
-          </CardContent>
-        </Card>
+        <DashboardCard title="Standings">
+          <Table>
+            <TableBody>
+              <TableRow className="flex">
+                <TableCell>1</TableCell>
+                <TableCell><Image src={livLogo} alt="Liverpool Logo Badge" className="size-6"/></TableCell>
+                <TableCell className="flex-1">Liverpool</TableCell>
+                <TableCell className="font-bold">11 PTS</TableCell>
+              </TableRow>
+              <TableRow className="flex">
+                <TableCell>2</TableCell>
+                <TableCell><Image src={arsLogo} alt="Arsenal Logo Badge" className="size-6"/></TableCell>
+                <TableCell className="flex-1">Arsenal</TableCell>
+                <TableCell className="font-bold">10 PTS</TableCell>
+              </TableRow>
+              <TableRow className="flex">
+                <TableCell>3</TableCell>
+                <TableCell><Image src={mcLogo} alt="Manchester City Logo Badge" className="size-6"/></TableCell>
+                <TableCell className="flex-1">Manchester City</TableCell>
+                <TableCell className="font-bold">10 PTS</TableCell>
+              </TableRow>
+              <TableRow className="flex">
+                <TableCell>4</TableCell>
+                <TableCell><Image src={newLogo} alt="Newcastle Logo Badge" className="size-6"/></TableCell>
+                <TableCell className="flex-1">Newcastle</TableCell>
+                <TableCell className="font-bold">9 PTS</TableCell>
+              </TableRow>
+              <TableRow className="flex">
+                <TableCell>5</TableCell>
+                <TableCell><Image src={totLogo} alt="Tottenham Logo Badge" className="size-6"/></TableCell>
+                <TableCell className="flex-1">Tottenham</TableCell>
+                <TableCell className="font-bold">7 PTS</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </DashboardCard>
       </div>
     </div>
   );
