@@ -120,50 +120,22 @@ export default async function Home() {
           </div>
         </DashboardCard>
         <DashboardCard title="Standings">
-          <div>
-            <h2>Standings</h2>
-            <ul>
-              {standings.map((r: any) => (
-                <li key={r.team.id}>
-                  {r.rank}. {r.team.name} — {r.points} pts
-                </li>
-              ))}
-            </ul>
-          </div>
-          {/* <Table>
+          <Table>
             <TableBody>
-              <TableRow className="flex">
-                <TableCell>1</TableCell>
-                <TableCell><Image src={livLogo} alt="Liverpool Logo Badge" className="size-6" /></TableCell>
-                <TableCell className="flex-1">Liverpool</TableCell>
-                <TableCell className="font-bold">11 PTS</TableCell>
-              </TableRow>
-              <TableRow className="flex">
-                <TableCell>2</TableCell>
-                <TableCell><Image src={arsLogo} alt="Arsenal Logo Badge" className="size-6" /></TableCell>
-                <TableCell className="flex-1">Arsenal</TableCell>
-                <TableCell className="font-bold">10 PTS</TableCell>
-              </TableRow>
-              <TableRow className="flex">
-                <TableCell>3</TableCell>
-                <TableCell><Image src={mcLogo} alt="Manchester City Logo Badge" className="size-6" /></TableCell>
-                <TableCell className="flex-1">Manchester City</TableCell>
-                <TableCell className="font-bold">10 PTS</TableCell>
-              </TableRow>
-              <TableRow className="flex">
-                <TableCell>4</TableCell>
-                <TableCell><Image src={newLogo} alt="Newcastle Logo Badge" className="size-6" /></TableCell>
-                <TableCell className="flex-1">Newcastle</TableCell>
-                <TableCell className="font-bold">9 PTS</TableCell>
-              </TableRow>
-              <TableRow className="flex">
-                <TableCell>5</TableCell>
-                <TableCell><Image src={totLogo} alt="Tottenham Logo Badge" className="size-6" /></TableCell>
-                <TableCell className="flex-1">Tottenham</TableCell>
-                <TableCell className="font-bold">7 PTS</TableCell>
-              </TableRow>
+              {standings.map((team, i: number) => {
+                console.log(team)
+                if (i < 5) return (
+                <TableRow key={team.team.id} className={`flex ${team.team.name === "Arsenal" && "bg-red-500/10"}`}>
+                  <TableCell>{team.rank}</TableCell>
+                  <TableCell >
+                    <Image width={50} height={50} src={team.team.logo} alt={`${team.team.name} Logo`} className="size-6" />
+                  </TableCell>
+                  <TableCell className="flex-1">{team.team.name}</TableCell>
+                  <TableCell className="font-bold">{team.points}</TableCell>
+                </TableRow>
+              )})}
             </TableBody>
-          </Table> */}
+          </Table>
         </DashboardCard>
       </div>
     </div>
