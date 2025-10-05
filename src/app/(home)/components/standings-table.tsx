@@ -1,0 +1,31 @@
+import Image from "next/image";
+import { Table, TableRow, TableCell, TableBody } from '@/components/ui/table'
+import { StandingRow } from "@/lib/api-football/schemas/standings";
+import missingLogo from '../../../../public/missingLogo.png'
+
+type StandingsTableProps = {
+  standings: StandingRow[]
+}
+
+const StandingsTable = ({standings}: StandingsTableProps) => {
+  return (
+    <Table>
+      <TableBody>
+        {standings.map((team, i: number) => {
+          if (i < 5) return (
+            <TableRow key={team.team.id} className={`flex ${team.team.name === "Arsenal" && "bg-red-500/10"}`}>
+              <TableCell>{team.rank}</TableCell>
+              <TableCell >
+                <Image width={50} height={50} src={team.team.logo || missingLogo} alt={`${team.team.name} Logo`} className="size-6" />
+              </TableCell>
+              <TableCell className="flex-1">{team.team.name}</TableCell>
+              <TableCell className="font-bold">{team.points}</TableCell>
+            </TableRow>
+          )
+        })}
+      </TableBody>
+    </Table>
+  )
+}
+
+export default StandingsTable

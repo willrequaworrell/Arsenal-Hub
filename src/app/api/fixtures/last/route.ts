@@ -1,11 +1,11 @@
+import { fetchFromAPIFootball, API } from '@/lib/api-football/api-football';
 import { NextResponse } from 'next/server';
-import { afGet, API } from '@/lib/api-football';
 
 export const revalidate = 60;
 
 export async function GET() {
   // Last finished Arsenal match in PL, current season
-  const data = await afGet('/fixtures', {
+  const data = await fetchFromAPIFootball('/fixtures', {
     league: API.league,
     season: API.season,
     team: API.team,

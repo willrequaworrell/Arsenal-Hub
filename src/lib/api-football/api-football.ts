@@ -6,13 +6,11 @@ export const API = {
   season: process.env.SEASON!,
 };
 
-export async function afGet(path: string, search?: Record<string,string|number>) {
+export async function fetchFromAPIFootball(path: string, search?: Record<string,string|number>) {
   const url = new URL(path, API.base);
   if (search) Object.entries(search).forEach(([k,v]) => url.searchParams.set(k, String(v)));
   const res = await fetch(url.toString(), {
     headers: { 'x-apisports-key': API.key },
-    // Cache lightly — adjust per need
-    // Next.js will revalidate the route handler response
   });
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json();

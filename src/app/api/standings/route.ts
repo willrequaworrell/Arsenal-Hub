@@ -1,14 +1,38 @@
-import { NextResponse } from 'next/server';
-import { afGet, API } from '@/lib/api-football';
 
-export const revalidate = 300; // 5 min
+
+import { fetchFromAPIFootball, API } from "@/lib/api-football/api-football";
+import { StandingsArraySchema } from "@/lib/api-football/schemas/standings";
+import { NextResponse } from "next/server";
+
+export const revalidate = 300;
 
 export async function GET() {
-  const data = await afGet('/standings', {
-    league: API.league,
-    season: API.season,
-  });
-  // API returns { response: [{ league: { standings: [[ rows ]] }}] }
-  const rows = data?.response?.[0]?.league?.standings?.[0] ?? [];
-  return NextResponse.json(rows);
+
+  try {
+    const data = await fetchFromAPIFootball("/standings", {
+      league: API.league,
+      season: API.season,
+    });
+  
+    // API shape: { response: [{ league: { standings: [[ rows ]] }}] } 
+    const rows = data?.response?.[0]?.league?.standings?.[0] ?? [];
+    const parsed = StandingsArraySchema.safeParse(rows);
+  
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid standings payload", issues: parsed.error.message},
+        { status: 502 }
+      );
+    }
+  
+    return NextResponse.json({ ok: true, data: parsed.data });
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: "Upstream failure" },
+      { status: 502 }
+    )
+  }
+  
 }
+
+
