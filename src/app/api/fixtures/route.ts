@@ -13,6 +13,7 @@ export async function GET() {
       team: API.team,
     });
     const fixtures = data?.response ?? null;
+    console.log(fixtures[0])
     const parsed = FixturesArraySchema.safeParse(fixtures)
 
     if (!parsed.success) {

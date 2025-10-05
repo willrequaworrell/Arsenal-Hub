@@ -21,12 +21,12 @@ const LastMatch = ({homeTeam, awayTeam, goals}: LastMatchProps) => {
     >
       <div className="flex flex-col">
         <div className="flex p-1 font-bold gap-x-2">
-          <Image width={50} height={50} src={homeTeam.logo || missingLogo } alt="Arsenal Logo Badge" className="size-6" />
+          <Image width={50} height={50} src={homeTeam.logo || missingLogo } alt={`${homeTeam.name} logo`} className="size-6" />
           <p className="flex-1">{homeTeam.name}</p>
           <p className="text-xl">{goals.home}</p>
         </div>
         <div className="flex p-1 font-bold gap-x-2">
-          <Image width={50} height={50} src={awayTeam.logo || missingLogo} alt="Manchester City Logo Badge" className="size-6" />
+          <Image width={50} height={50} src={awayTeam.logo || missingLogo} alt={`${awayTeam.name} logo`} className="size-6" />
           <p className="flex-1">{awayTeam.name}</p>
           <p className="text-xl">{goals.away}</p>
         </div>

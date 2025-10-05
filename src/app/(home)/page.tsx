@@ -1,8 +1,5 @@
 import Image from "next/image";
 
-import arsLogo from '../../../public/arsenal_logo.png'
-import mcLogo from '../../../public/mancity_logo.png'
-import newLogo from '../../../public/newcastle_logo.png'
 import newsImg from '../../../public/egNewsImg.jpg'
 
 import CardContainer from "@/components/ui/custom/card-container";
@@ -11,6 +8,7 @@ import { getStandings } from "@/lib/data/standings";
 import MatchCountdown from "./components/match-countdown";
 import { getFixtures } from "@/lib/data/fixtures";
 import LastMatch from "./components/last-match";
+import UpcomingMatch from "./components/upcoming-match";
 
 
 export default async function Home() {
@@ -58,32 +56,13 @@ export default async function Home() {
 
       </div>
       <div className="flex flex-col gap-y-6 w-[38.2%]">
-        <CardContainer title="Upcoming Match">
-          <div className="flex flex-col h-full">
-            <div className="flex flex-col items-center flex-1 p-1">
-              <div className="relative flex justify-between w-full px-8">
-                <div className="flex flex-col items-center font-bold">
-                  <Image src={arsLogo} alt="Arsenal Logo Badge" className="size-16" />
-                  <p>Arsenal</p>
-                </div>
-                <p className="absolute left-1/2 -translate-x-1/2 bottom-0 -translate-y-1/3 text-4xl font-bold">vs.</p>
-                <div className="flex flex-col items-center font-bold">
-                  <Image src={newLogo} alt="Newcastle Logo Badge" className="size-16" />
-                  <p>Newcastle</p>
-                </div>
-              </div>
-              <div className="text-center text-sm text-slate-600">
-                <p>Sun, Sep 28 // 11:30am</p>
-                <p>St. James Park</p>
-              </div>
-            </div>
-            <MatchCountdown/>
-          </div>
-        </CardContainer>
-        
-        <CardContainer title="Standings">
-          <StandingsTable standings={standings}/>
-        </CardContainer>
+        <UpcomingMatch
+          homeTeam={upcomingMatch.teams.home}
+          awayTeam={upcomingMatch.teams.away}
+          venue={upcomingMatch.fixture.venue}
+          date={new Date(upcomingMatch.fixture.date)}
+        />
+        <StandingsTable standings={standings} />
       </div>
     </div>
   );

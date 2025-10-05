@@ -12,7 +12,7 @@ const PeriodsSchema = z.object({
   second: z.number().nullable().optional(),
 })
 
-const VenueSchema = z.object({
+export const VenueSchema = z.object({
   id: z.number().nullable().optional(),
   name: z.string().nullable().optional(),
   city: z.string().nullable().optional(),
@@ -29,7 +29,7 @@ const FixtureCoreSchema = z.object({
   id: z.number(),
   referee: z.string().nullable().optional(),
   timezone: z.string(),
-  date: z.string(),         // ISO string
+  date: z.iso.datetime({offset: true}),        // ISO string
   timestamp: z.number(),    // epoch seconds
   periods: PeriodsSchema,
   venue: VenueSchema,
