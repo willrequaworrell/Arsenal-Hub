@@ -4,6 +4,7 @@ import newsImg from '../../../public/egNewsImg.jpg'
 
 import CardContainer from "@/components/ui/custom/card-container";
 import StandingsTable from "./components/standings-table";
+import Performance from "./components/performance";
 import { getStandings } from "@/lib/data/standings";
 import MatchCountdown from "./components/match-countdown";
 import { getFixtures } from "@/lib/data/fixtures";
@@ -25,15 +26,7 @@ export default async function Home() {
       <div className="flex flex-col flex-1 gap-y-6  w-[61.8%]">
 
         <div className="flex gap-x-6 h-[30%]">
-          <CardContainer
-            title="Performance"
-          >
-            <div className="flex justify-between">
-              <p className="text-4xl font-bold">{`${teamStats.record.w}-${teamStats.record.d}-${teamStats.record.l}`}</p>
-              <p className="text-4xl font-bold">{teamStats.form.substring(teamStats.form.length - 5 - 1, teamStats.form.length -1)}</p>
-
-            </div>
-          </CardContainer>
+          <Performance {...teamStats}/>
           <LastMatch
             homeTeam={lastResult.teams.home}
             awayTeam={lastResult.teams.away}
