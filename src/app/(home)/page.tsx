@@ -9,14 +9,16 @@ import MatchCountdown from "./components/match-countdown";
 import { getFixtures } from "@/lib/data/fixtures";
 import LastMatch from "./components/last-match";
 import UpcomingMatch from "./components/upcoming-match";
+import { getTeamFormAndRecord } from "@/lib/data/team-stats";
 
 
 export default async function Home() {
   const standings = await getStandings();
   const fixtures = await getFixtures();
+  const teamStats = await getTeamFormAndRecord();
+  
   const lastResult = fixtures[fixtures.length - 2]
   const upcomingMatch = fixtures[fixtures.length - 1]
-  console.log(upcomingMatch)
 
   return (
     <div className="flex flex-1 gap-x-6  px-[5%] py-[2%]">
@@ -27,8 +29,8 @@ export default async function Home() {
             title="Performance"
           >
             <div className="flex justify-between">
-              <p className="text-4xl font-bold">3-1-1</p>
-              <p className="text-4xl font-bold">D/W/W/W/L</p>
+              <p className="text-4xl font-bold">{`${teamStats.record.w}-${teamStats.record.d}-${teamStats.record.l}`}</p>
+              <p className="text-4xl font-bold">{teamStats.form.substring(teamStats.form.length - 5 - 1, teamStats.form.length -1)}</p>
 
             </div>
           </CardContainer>
