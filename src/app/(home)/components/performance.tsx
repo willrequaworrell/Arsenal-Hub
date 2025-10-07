@@ -20,10 +20,16 @@ const Performance = ({record, form}: PerformanceProps) => {
     <CardContainer
       title="Performance"
     >
-      <div className="flex justify-between">
-        <p className="text-4xl font-bold">{`${record.w}-${record.d}-${record.l}`}</p>
-        <p className="text-4xl font-bold">{recentForm}</p>
-
+      <div className="flex h-full justify-between items-center">
+        <div>
+          <p className="text-4xl font-bold">{`${record.w}-${record.d}-${record.l}`}</p>
+          <p className="text-slate-600">Record</p> 
+        </div>
+        <div className="h-full w-[1px] bg-slate-400"></div>
+        <div>
+          <p className="text-4xl font-bold">{recentForm}</p>
+          <p className="text-slate-600">Recent Form</p>
+        </div>
       </div>
     </CardContainer>
   )
