@@ -26,7 +26,10 @@ export default async function Home() {
       <div className="flex flex-col flex-1 gap-y-6  w-[61.8%]">
 
         <div className="flex gap-x-6 h-[30%]">
-          <Performance {...teamStats}/>
+          <Performance
+            record={teamStats.data.record}
+            form={teamStats.data.form}
+          />
           <LastMatch
             homeTeam={lastResult.teams.home}
             awayTeam={lastResult.teams.away}
