@@ -6,17 +6,15 @@ import CardContainer from "@/components/ui/custom/card-container";
 import StandingsTable from "./components/standings-table";
 import Performance from "./components/performance";
 import { getStandings } from "@/lib/data/standings";
-import MatchCountdown from "./components/match-countdown";
 import { getFixtures } from "@/lib/data/fixtures";
 import LastMatch from "./components/last-match";
 import UpcomingMatch from "./components/upcoming-match";
-import { getTeamFormAndRecord } from "@/lib/data/team-stats";
 
 
 export default async function Home() {
   const standings = await getStandings();
   const fixtures = await getFixtures();
-  const teamStats = await getTeamFormAndRecord();
+  
   
   const lastResult = fixtures[fixtures.length - 2]
   const upcomingMatch = fixtures[fixtures.length - 1]
@@ -27,8 +25,6 @@ export default async function Home() {
 
         <div className="flex gap-x-6 h-[30%]">
           <Performance
-            record={teamStats.data.record}
-            form={teamStats.data.form}
           />
           <LastMatch
             homeTeam={lastResult.teams.home}

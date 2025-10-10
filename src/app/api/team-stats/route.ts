@@ -6,6 +6,7 @@ import { TeamStatsSchema, toFormAndRecord } from "@/lib/api-football/schemas/tea
 export const revalidate = 120
 
 export async function GET() {
+  
   try {
     const data = await fetchFromAPIFootball("/teams/statistics", {
       league: API.league,
@@ -19,8 +20,8 @@ export async function GET() {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { ok: false, error: "Invalid team stats payload", issues: parsed.error.message },
-        { status: 502 }
+        { ok: false, error: "Invalid team stats payload"},
+        { status: 422 }
       )
     }
 
