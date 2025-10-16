@@ -6,20 +6,30 @@ import z from "zod";
 
 import missingLogo from "../../../../public/missingLogo.png"
 import { formatDate } from "../util/date-formatter";
+import { getFixtures } from "@/lib/data/fixtures";
+import DataUnavailable from "@/components/ui/custom/data-unavailable";
 
 
 type FixtureTeam = z.infer<typeof FixtureTeamSchema>
 type Venue = z.infer<typeof VenueSchema>
 
-type UpcomingMatchProps = {
-  homeTeam: FixtureTeam
-  awayTeam: FixtureTeam
-  venue: Venue
-  date: Date 
-}
 
-const UpcomingMatch = ({homeTeam, awayTeam, venue, date}: UpcomingMatchProps) => {
+const UpcomingMatch = async () => {
+  const {data: fixtures, success} = await getFixtures();
 
+  if (!success || !fixtures || fixtures.length < 1) {
+    return (
+      <CardContainer title="Upcoming Match">
+        <DataUnavailable message="Upcoming match data unavailable" />
+      </CardContainer>
+    )
+  }
+
+  const upcomingMatch = fixtures[fixtures.length - 1]
+  const homeTeam = upcomingMatch.teams.home
+  const awayTeam = upcomingMatch.teams.away
+  const venue = upcomingMatch.fixture.venue
+  const date = new Date(upcomingMatch.fixture.date)
 
   return (
     <CardContainer title="Upcoming Match">

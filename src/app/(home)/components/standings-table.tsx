@@ -3,12 +3,21 @@ import { Table, TableRow, TableCell, TableBody } from '@/components/ui/table'
 import { StandingRow } from "@/lib/api-football/schemas/standings";
 import missingLogo from '../../../../public/missingLogo.png'
 import CardContainer from "@/components/ui/custom/card-container";
+import { getStandings } from "@/lib/data/standings";
+import DataUnavailable from "@/components/ui/custom/data-unavailable";
 
-type StandingsTableProps = {
-  standings: StandingRow[]
-}
 
-const StandingsTable = ({standings}: StandingsTableProps) => {
+const StandingsTable = async () => {
+  const {data: standings, success} = await getStandings();
+
+  if (!success || !standings) {
+    return (
+      <CardContainer title="Standings">
+        <DataUnavailable message="Standings data is currently unavailable." />
+      </CardContainer>
+    )
+  }
+
   return (
     <CardContainer title="Standings">
       <Table>

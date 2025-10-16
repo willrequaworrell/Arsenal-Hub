@@ -4,17 +4,28 @@ import { FixtureTeamSchema, GoalsSchema } from "@/lib/api-football/schemas/fixtu
 import z from "zod";
 
 import missingLogo from "../../../../public/missingLogo.png"
+import { getFixtures } from "@/lib/data/fixtures";
+import DataUnavailable from "@/components/ui/custom/data-unavailable";
 
 type FixtureTeam = z.infer<typeof FixtureTeamSchema>
 type Goals = z.infer<typeof GoalsSchema>
 
-type LastMatchProps = {
-  homeTeam: FixtureTeam
-  awayTeam: FixtureTeam
-  goals: Goals
-}
 
-const LastMatch = ({homeTeam, awayTeam, goals}: LastMatchProps) => {
+const LastMatch = async () => {
+  const {data: fixtures, success} = await getFixtures();
+  if (!success || !fixtures || fixtures.length < 2) {
+    return (
+      <CardContainer title="Last Result">
+        <DataUnavailable message="Last match data unavailable" />
+      </CardContainer>
+    )
+  }
+  
+  const lastResult = fixtures[fixtures.length - 2]
+  const homeTeam = lastResult.teams.home
+  const awayTeam = lastResult.teams.away
+  const goals = lastResult.goals
+
   return (
     <CardContainer
       title="Last Result"

@@ -5,19 +5,11 @@ import newsImg from '../../../public/egNewsImg.jpg'
 import CardContainer from "@/components/ui/custom/card-container";
 import StandingsTable from "./components/standings-table";
 import Performance from "./components/performance";
-import { getStandings } from "@/lib/data/standings";
-import { getFixtures } from "@/lib/data/fixtures";
 import LastMatch from "./components/last-match";
 import UpcomingMatch from "./components/upcoming-match";
 
 
 export default async function Home() {
-  const standings = await getStandings();
-  const fixtures = await getFixtures();
-  
-  
-  const lastResult = fixtures[fixtures.length - 2]
-  const upcomingMatch = fixtures[fixtures.length - 1]
 
   return (
     <div className="flex flex-1 gap-x-6  px-[5%] py-[2%]">
@@ -27,9 +19,6 @@ export default async function Home() {
           <Performance
           />
           <LastMatch
-            homeTeam={lastResult.teams.home}
-            awayTeam={lastResult.teams.away}
-            goals={lastResult.goals}
           />
         </div>
 
@@ -51,12 +40,8 @@ export default async function Home() {
       </div>
       <div className="flex flex-col gap-y-6 w-[38.2%]">
         <UpcomingMatch
-          homeTeam={upcomingMatch.teams.home}
-          awayTeam={upcomingMatch.teams.away}
-          venue={upcomingMatch.fixture.venue}
-          date={new Date(upcomingMatch.fixture.date)}
         />
-        <StandingsTable standings={standings} />
+        <StandingsTable />
       </div>
     </div>
   );
