@@ -25,7 +25,7 @@ const NewsCarousel = ({ articles }: NewsCarouselProps) => {
   const currentArticle = articles[currentIndex]
 
   return (
-    <div className="relative h-full w-full">
+    <div className="group relative h-full w-full">
       <a
         href={currentArticle.link}
         target="_blank"
@@ -60,9 +60,9 @@ const NewsCarousel = ({ articles }: NewsCarouselProps) => {
           <p className="text-xs text-slate-300">The Guardian</p>
         </div>
 
-        {/* Dot Indicators - Centered at bottom */}
+        {/* Dot Indicators - Centered at bottom, visible on hover */}
         {articles.length > 1 && (
-          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             {articles.map((_, idx) => (
               <button
                 key={idx}
@@ -80,7 +80,7 @@ const NewsCarousel = ({ articles }: NewsCarouselProps) => {
         )}
       </a>
 
-      {/* Navigation Arrows - Only show if multiple articles */}
+      {/* Navigation Arrows - Only show if multiple articles, visible on hover */}
       {articles.length > 1 && (
         <>
           <button
@@ -88,7 +88,7 @@ const NewsCarousel = ({ articles }: NewsCarouselProps) => {
               e.preventDefault()
               goToPrev()
             }}
-            className="absolute left-2 top-1/2 z-20 -translate-y-1/2 cursor-pointer rounded-full bg-white/20 p-2 text-white transition-all hover:bg-white/30"
+            className="absolute left-2 top-1/2 z-20 -translate-y-1/2 cursor-pointer rounded-full bg-white/20 p-2 text-white opacity-0 transition-all duration-300 hover:bg-white/30 group-hover:opacity-100"
             aria-label="Previous article"
           >
             <ChevronLeft className="h-6 w-6" />
@@ -99,7 +99,7 @@ const NewsCarousel = ({ articles }: NewsCarouselProps) => {
               e.preventDefault()
               goToNext()
             }}
-            className="absolute right-2 top-1/2 z-20 -translate-y-1/2 cursor-pointer rounded-full bg-white/20 p-2 text-white transition-all hover:bg-white/30"
+            className="absolute right-2 top-1/2 z-20 -translate-y-1/2 cursor-pointer rounded-full bg-white/20 p-2 text-white opacity-0 transition-all duration-300 hover:bg-white/30 group-hover:opacity-100"
             aria-label="Next article"
           >
             <ChevronRight className="h-6 w-6" />
