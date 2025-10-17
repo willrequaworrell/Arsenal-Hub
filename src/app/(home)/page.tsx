@@ -1,12 +1,11 @@
-import Image from "next/image";
 
-import newsImg from '../../../public/egNewsImg.jpg'
 
-import CardContainer from "@/components/ui/custom/card-container";
+
 import StandingsTable from "./components/standings-table";
 import Performance from "./components/performance";
 import LastMatch from "./components/last-match";
 import UpcomingMatch from "./components/upcoming-match";
+import News from "./components/news";
 
 
 export default async function Home() {
@@ -23,18 +22,7 @@ export default async function Home() {
         </div>
 
         <div className="h-[70%] ">
-          <CardContainer title="News">
-            <div className="relative w-full h-full">
-              <Image
-                src={newsImg}
-                alt="Arsenal News Image"
-                fill
-                className="object-cover object-center"
-                sizes="(max-width: 768px) 100vw, 60vw"
-                priority
-              />
-            </div>
-          </CardContainer>
+          <News/>
         </div>
 
       </div>

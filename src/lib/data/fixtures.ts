@@ -1,4 +1,5 @@
 import { Fixture } from "../api-football/schemas/fixtures";
+import { DEFAULT_TEAM_ID } from "../config/api-football";
 
 export type FixturesResult = {
   data: Fixture[] | null
@@ -8,12 +9,18 @@ export type FixturesResult = {
 
 const REVALIDATE_SECS = 300
 
-export const getFixtures = async (): Promise<FixturesResult> => {
-  const absoluteUrl = new URL('/api/fixtures', process.env.NEXT_PUBLIC_BASE_URL).toString();
+
+export const getFixtures = async (teamId: string = DEFAULT_TEAM_ID): Promise<FixturesResult> => {
+  const absoluteUrl = new URL('/api/fixtures', process.env.NEXT_PUBLIC_BASE_URL)
+  absoluteUrl.searchParams.set('teamId', teamId)
+
 
   try {
     const res = await fetch(absoluteUrl, {
-      next: { revalidate: REVALIDATE_SECS, tags: ['fixtures'] },
+      next: {
+        revalidate: REVALIDATE_SECS,
+        tags: [`fixtures-${teamId}`]
+      },
     });
 
     if (!res.ok) {

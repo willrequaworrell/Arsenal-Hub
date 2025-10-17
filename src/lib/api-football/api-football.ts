@@ -1,8 +1,8 @@
 export const API = {
   base: process.env.API_FOOTBALL_BASE_URL!,
   key: process.env.API_FOOTBALL_KEY!,
-  league: process.env.PREMIER_LEAGUE_ID!,
-  team: process.env.ARSENAL_TEAM_ID!,
+  league: process.env.API_FOOTBALL_LEAGUE_ID!,
+  team: process.env.API_FOOTBALL_TEAM_ID!,
   season: process.env.SEASON!,
 };
 

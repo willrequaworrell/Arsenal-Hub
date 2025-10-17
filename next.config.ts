@@ -7,7 +7,13 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'media.api-sports.io',
         port: '',
-        pathname: '/football/**', // allow this path scope
+        pathname: '/football/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.guim.co.uk', // The Guardian's image CDN
+        port: '',
+        pathname: '/**', // Allow all Guardian image paths
       },
     ],
   },

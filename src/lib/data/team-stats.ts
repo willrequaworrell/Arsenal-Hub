@@ -1,3 +1,4 @@
+// src/lib/data/team-stats.ts
 import type { TeamFormAndRecord } from "@/lib/api-football/schemas/team-stats"
 
 export type TeamStatsResult = {
@@ -7,14 +8,18 @@ export type TeamStatsResult = {
 }
 
 const REVALIDATE_SECS = 300
+const DEFAULT_TEAM_ID = process.env.API_FOOTBALL_TEAM_ID ?? "42"
 
-
-export async function getTeamFormAndRecord(): Promise<TeamStatsResult> {
-  const url = new URL("/api/team-stats", process.env.NEXT_PUBLIC_BASE_URL).toString()
+export async function getTeamFormAndRecord(teamId: string = DEFAULT_TEAM_ID): Promise<TeamStatsResult> {
+  const url = new URL("/api/team-stats", process.env.NEXT_PUBLIC_BASE_URL)
+  url.searchParams.set('teamId', teamId)
 
   try {
-    const res = await fetch(url, {
-      next: { revalidate: REVALIDATE_SECS, tags: ["team-stats"] },
+    const res = await fetch(url.toString(), {
+      next: { 
+        revalidate: REVALIDATE_SECS, 
+        tags: [`team-stats-${teamId}`] 
+      },
     })
 
     if (!res.ok) {

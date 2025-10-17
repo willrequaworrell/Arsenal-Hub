@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server"
 import { fetchFromAPIFootball, API } from "@/lib/api-football/api-football"
 import { TeamStatsSchema, toFormAndRecord } from "@/lib/api-football/schemas/team-stats"
+import { DEFAULT_TEAM_ID } from "@/lib/config/api-football"
 
 // Keep stats relatively fresh; form can change each matchday
 export const revalidate = 120
 
-export async function GET() {
-  
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+    const teamId = searchParams.get("teamId") ?? DEFAULT_TEAM_ID
+    
   try {
     const data = await fetchFromAPIFootball("/teams/statistics", {
       league: API.league,
       season: API.season,
-      team: API.team,
+      team: teamId
     })
 
     // For this endpoint, API shape is { response: { ...stats... } }

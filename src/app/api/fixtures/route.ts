@@ -1,16 +1,19 @@
-import { fetchFromAPIFootball, API } from '@/lib/api-football/api-football';
+import { fetchFromAPIFootball} from '@/lib/api-football/api-football';
 import { FixturesArraySchema } from '@/lib/api-football/schemas/fixtures';
+import { API_FOOTBALL, DEFAULT_TEAM_ID } from '@/lib/config/api-football';
 import { NextResponse } from 'next/server';
 
 export const revalidate = 60;
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const teamId = searchParams.get("teamId") ?? DEFAULT_TEAM_ID
 
   try {
     const data = await fetchFromAPIFootball('/fixtures', {
-      league: API.league,
-      season: API.season,
-      team: API.team,
+      league: API_FOOTBALL.leagueId,
+      season: API_FOOTBALL.season,
+      team: teamId
     });
     const fixtures = data?.response ?? null;
     const parsed = FixturesArraySchema.safeParse(fixtures)
