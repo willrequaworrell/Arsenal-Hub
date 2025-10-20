@@ -28,7 +28,7 @@ const Navbar = () => {
       <Image 
         src={logoImg} 
         alt='Arsenal Hub Logo'
-        className='w-[5%]'
+        className='w-[max(36px,5vw)]'
       />
       <NavLink href='/'>Home</NavLink>
       <NavLink href='/season'>Season</NavLink>
