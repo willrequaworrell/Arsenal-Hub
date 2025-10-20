@@ -25,6 +25,8 @@ export async function GET(request: Request) {
       );
     }
 
+    console.log(parsed.data[0].teams);
+
     return NextResponse.json({ ok: true, data: parsed.data })
 
   } catch (error) {
