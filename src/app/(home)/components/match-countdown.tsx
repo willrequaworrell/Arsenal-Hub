@@ -1,7 +1,6 @@
 
-type MatchCountdownProps = {}
 
-const MatchCountdown = ({}: MatchCountdownProps) => {
+const MatchCountdown = () => {
   return (
     <div className="flex justify-around">
       <div className="flex flex-col items-center font-bold">
