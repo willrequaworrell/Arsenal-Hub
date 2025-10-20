@@ -1,18 +1,18 @@
-import Image from "next/image";
+import Image from "next/image"
 import CardContainer from "@/components/ui/custom/card-container"
-import { FixtureTeamSchema, GoalsSchema } from "@/lib/api-football/schemas/fixtures";
-import z from "zod";
+import { FixtureTeamSchema, GoalsSchema } from "@/lib/api-football/schemas/fixtures"
+import z from "zod"
 
 import missingLogo from "../../../../public/missingLogo.png"
-import { getFixtures } from "@/lib/data/fixtures";
-import DataUnavailable from "@/components/ui/custom/data-unavailable";
+import { getFixtures } from "@/lib/data/fixtures"
+import DataUnavailable from "@/components/ui/custom/data-unavailable"
 
 type FixtureTeam = z.infer<typeof FixtureTeamSchema>
 type Goals = z.infer<typeof GoalsSchema>
 
-
 const LastMatch = async () => {
-  const {data: fixtures, success} = await getFixtures();
+  const { data: fixtures, success } = await getFixtures()
+  
   if (!success || !fixtures || fixtures.length < 2) {
     return (
       <CardContainer title="Last Result">
@@ -27,21 +27,39 @@ const LastMatch = async () => {
   const goals = lastResult.goals
 
   return (
-    <CardContainer
-      title="Last Result"
-    >
-      <div className="flex flex-col">
-        <div className="flex p-1 font-bold gap-x-2">
-          <Image width={50} height={50} src={homeTeam.logo || missingLogo } alt={`${homeTeam.name} logo`} className="size-6" />
-          <p className="flex-1">{homeTeam.name}</p>
-          <p className="text-xl">{goals.home}</p>
+    <CardContainer title="Last Result">
+      <div className="flex h-full flex-col justify-center gap-y-2">
+        <div className="flex items-center gap-x-2 p-1">
+          <Image 
+            width={50} 
+            height={50} 
+            src={homeTeam.logo || missingLogo} 
+            alt={`${homeTeam.name} logo`} 
+            className="size-6" 
+          />
+          <p className="flex-1 font-semibold text-[clamp(0.875rem,1.5vw,1rem)]">
+            {homeTeam.name}
+          </p>
+          <p className="font-bold text-[clamp(1rem,2vw,2rem)]">
+            {goals.home}
+          </p>
         </div>
-        <div className="flex p-1 font-bold gap-x-2">
-          <Image width={50} height={50} src={awayTeam.logo || missingLogo} alt={`${awayTeam.name} logo`} className="size-6" />
-          <p className="flex-1">{awayTeam.name}</p>
-          <p className="text-xl">{goals.away}</p>
+        
+        <div className="flex items-center gap-x-2 p-1">
+          <Image 
+            width={50} 
+            height={50} 
+            src={awayTeam.logo || missingLogo} 
+            alt={`${awayTeam.name} logo`} 
+            className="size-6" 
+          />
+          <p className="flex-1 font-semibold text-[clamp(0.875rem,1.5vw,1rem)]">
+            {awayTeam.name}
+          </p>
+          <p className="font-bold text-[clamp(1rem,2vw,2rem)]">
+            {goals.away}
+          </p>
         </div>
-
       </div>
     </CardContainer>
   )

@@ -18,7 +18,9 @@ const News = async () => {
     
   return (
     <CardContainer title="News">
-      <NewsCarousel articles={data} />
+      <div className="h-full"> 
+        <NewsCarousel articles={data} />
+      </div>
     </CardContainer>
   )
 }
