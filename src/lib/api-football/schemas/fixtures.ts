@@ -19,8 +19,8 @@ export const VenueSchema = z.object({
 })
 
 const StatusSchema = z.object({
-  long: z.string().nullable().optional(),
-  short: z.string().nullable().optional(),
+  long: z.string(),
+  short: z.string(),
   elapsed: z.number().nullable().optional(),
   extra: z.unknown().nullable().optional(), 
 })
@@ -29,8 +29,8 @@ const FixtureCoreSchema = z.object({
   id: z.number(),
   referee: z.string().nullable().optional(),
   timezone: z.string(),
-  date: z.iso.datetime({offset: true}),        // ISO string
-  timestamp: z.number(),    // epoch seconds
+  date: z.string().datetime({offset: true}),
+  timestamp: z.number(),
   periods: PeriodsSchema,
   venue: VenueSchema,
   status: StatusSchema,
@@ -40,21 +40,22 @@ const LeagueSchema = z.object({
   id: z.number(),
   name: z.string(),
   country: z.string().nullable().optional(),
-  logo: z.string().url().nullable().optional(),
+  logo: z.string().url(),
   flag: z.string().url().nullable().optional(),
   season: z.number(),
   round: z.string().nullable().optional(),
   standings: z.boolean().nullable().optional(),
 })
 
+// Goals are null for upcoming matches, numbers for live/finished matches
 export const GoalsSchema = z.object({
-  home: z.number().nullable().optional(),
-  away: z.number().nullable().optional(),
+  home: z.number().nullable(),
+  away: z.number().nullable(),
 })
 
 const ScoreSideSchema = z.object({
-  home: z.number().nullable().optional(),
-  away: z.number().nullable().optional(),
+  home: z.number().nullable(),
+  away: z.number().nullable(),
 })
 
 const ScoreSchema = z.object({
