@@ -1,24 +1,36 @@
 // app/(season)/components/match-row.tsx
+'use client'
+
+import { useState } from "react"
 import Image from "next/image"
 import { TableRow, TableCell } from '@/components/ui/table'
 import { Fixture } from "@/lib/api-football/schemas/fixtures"
 import { getTeamConfig } from "@/lib/config/team"
 import missingLogo from "../../../../public/missingLogo.png"
 import { cn } from "@/lib/utils"
+import { ChevronDown } from "lucide-react"
+import MatchDetails from "./match-details"
 import { getTeamAbbreviation } from "@/lib/api-football/team-abbreviations"
 
 type MatchRowProps = {
   fixture: Fixture
 }
 
+const RESULT_COLOR_VARIANTS = {
+  W: "bg-green-600",
+  D: "bg-yellow-500",
+  L: "bg-red-600",
+} 
+
 export default function MatchRow({ fixture }: MatchRowProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
   const { teams, goals, fixture: fixtureData } = fixture
   const homeTeam = teams.home
   const awayTeam = teams.away
   
   // Get configured team name
-  const teamId = process.env.API_FOOTBALL_TEAM_ID || "42"
-  const configuredTeam = getTeamConfig(teamId)
+  const teamId = process.env.NEXT_PUBLIC_TEAM_ID || "42"
+  const teamObj = getTeamConfig(teamId)
   
   // Determine match status
   const status = fixtureData.status.short
@@ -26,32 +38,25 @@ export default function MatchRow({ fixture }: MatchRowProps) {
   const isLive = ["1H", "2H", "HT", "ET", "BT", "P"].includes(status)
   const isUpcoming = goals.home === null || goals.away === null
   
-  // Determine if configured team is playing and their result
-  const isHomeTeam = homeTeam.name === configuredTeam.name
-  const isAwayTeam = awayTeam.name === configuredTeam.name
-  const isTeamPlaying = isHomeTeam || isAwayTeam
+  // Determine if configured team is playing and get opponent
+  const isHomeTeam = homeTeam.name === teamObj.name
+  const opponent = isHomeTeam ? awayTeam : homeTeam
+  const venue = isHomeTeam ? "Home" : "Away"
   
-  let matchResult: 'win' | 'draw' | 'loss' | null = null
+  // Calculate scores from your team's perspective
+  const teamScore = isHomeTeam ? goals.home : goals.away
+  const opponentScore = isHomeTeam ? goals.away : goals.home
   
-  if (isTeamPlaying && !isUpcoming && goals.home !== null && goals.away !== null) {
-    if (goals.home === goals.away) {
-      matchResult = 'draw'
-    } else if (isHomeTeam && goals.home > goals.away) {
-      matchResult = 'win'
-    } else if (isAwayTeam && goals.away > goals.home) {
-      matchResult = 'win'
-    } else {
-      matchResult = 'loss'
-    }
-  }
+  // Determine result
+  let matchResult: 'W' | 'D' | 'L' | null = null
   
-  // Get score color based on result
-  const getScoreColor = () => {
-    if (!matchResult) return ""
-    switch (matchResult) {
-      case 'win': return "text-green-600"
-      case 'draw': return "text-yellow-600"
-      case 'loss': return "text-red-600"
+  if (!isUpcoming && teamScore !== null && opponentScore !== null) {
+    if (teamScore === opponentScore) {
+      matchResult = 'D'
+    } else if (teamScore > opponentScore) {
+      matchResult = 'W'
+    } else if (teamScore < opponentScore) {
+      matchResult = 'L'
     }
   }
   
@@ -63,81 +68,78 @@ export default function MatchRow({ fixture }: MatchRowProps) {
   })
 
   return (
-    <TableRow 
-      className={cn(
-        "flex items-center",
-        isLive && "bg-green-50"
+    <>
+      <TableRow 
+        onClick={() => isFinished && setIsExpanded(prev => !prev)}
+        className={cn(
+          "flex items-center py-2",
+          isFinished && "cursor-pointer hover:bg-slate-50",
+          isLive && "bg-green-50",
+          isExpanded && "bg-slate-50"
+        )}
+      >
+        {/* Date Column */}
+        <TableCell className="w-20 text-xs text-slate-600">
+          {formattedDate}
+        </TableCell>
+
+        {/* Opponent */}
+        <TableCell className="flex flex-1 items-center gap-2">
+          <Image
+            src={opponent.logo || missingLogo}
+            alt={opponent.name}
+            width={28}
+            height={28}
+            className="size-7"
+          />
+          <span className="font-semibold text-sm sm:text-base">
+            <span className="sm:hidden">{getTeamAbbreviation(opponent.name)}</span>
+            <span className="hidden sm:inline">{opponent.name}</span>
+          </span>
+        </TableCell>
+
+        {/* Home/Away Badge */}
+        <TableCell>
+          <span className="flex items-center justify-center rounded bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+            {venue}
+          </span>
+        </TableCell>
+
+        {/* Score - Filled Container with Result Color */}
+        <TableCell className="text-center">
+          {isLive && (
+            <div className="mb-1 text-xs font-bold text-green-600">LIVE</div>
+          )}
+          {!isUpcoming && teamScore !== null && opponentScore !== null ? (
+            <span className={cn(
+              "inline-flex items-center justify-center rounded px-2 py-1 text-sm font-bold text-white",
+              matchResult ? RESULT_COLOR_VARIANTS[matchResult] : "bg-slate-400"
+            )}>
+              {teamScore} - {opponentScore}
+            </span>
+          ) : isUpcoming && (
+            <div className="text-xs text-slate-500">
+              {matchDate.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit"
+              })}
+            </div>
+          )}
+        </TableCell>
+      </TableRow>
+
+      {/* Expanded Details Row */}
+      {isExpanded && isFinished && (
+        <TableRow className="flex">
+          <TableCell colSpan={4} className="w-full p-0">
+            <MatchDetails 
+              fixture={fixture} 
+              isHomeTeam={isHomeTeam}
+              configuredTeamName={teamObj.name}
+            />
+          </TableCell>
+        </TableRow>
       )}
-    >
-      {/* Date Column */}
-      <TableCell className="w-20 text-xs text-slate-600">
-        {formattedDate}
-      </TableCell>
-
-      {/* Teams Column (stacked) */}
-      <TableCell className="flex-1">
-        <div className="flex flex-col gap-2">
-          {/* Home Team */}
-          <div className="flex items-center gap-2">
-            <Image
-              src={homeTeam.logo || missingLogo}
-              alt={homeTeam.name}
-              width={24}
-              height={24}
-              className="size-6"
-            />
-            <span className="font-semibold text-sm">
-              <span className="sm:hidden">{getTeamAbbreviation(homeTeam.name)}</span>
-              <span className="hidden sm:inline">{homeTeam.name}</span>
-            </span>
-          </div>
-
-          {/* Away Team */}
-          <div className="flex items-center gap-2">
-            <Image
-              src={awayTeam.logo || missingLogo}
-              alt={awayTeam.name}
-              width={24}
-              height={24}
-              className="size-6"
-            />
-            <span className="font-semibold text-sm">
-              <span className="sm:hidden">{getTeamAbbreviation(awayTeam.name)}</span>
-              <span className="hidden sm:inline">{awayTeam.name}</span>
-            </span>
-          </div>
-        </div>
-      </TableCell>
-
-      {/* Score/Status Column (stacked) */}
-      <TableCell className="w-16 text-right">
-        {isLive && (
-          <div className="text-xs font-bold text-green-600 mb-1">LIVE</div>
-        )}
-        {!isUpcoming && goals.home !== null && goals.away !== null ? (
-          <div className="flex flex-col gap-2">
-            <span className={cn(
-              "text-lg font-bold",
-              isTeamPlaying && getScoreColor()
-            )}>
-              {goals.home}
-            </span>
-            <span className={cn(
-              "text-lg font-bold",
-              isTeamPlaying && getScoreColor()
-            )}>
-              {goals.away}
-            </span>
-          </div>
-        ) : isUpcoming && (
-          <div className="text-xs text-slate-500">
-            {matchDate.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit"
-            })}
-          </div>
-        )}
-      </TableCell>
-    </TableRow>
+    </>
   )
 }
