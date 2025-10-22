@@ -34,7 +34,7 @@ export const getFixtureStatistics = async (
       ok: boolean
       data?: FixtureStatistics
       error?: string
-      details?: any
+      details?: Record<string, unknown>
     }
 
     if (!json.ok || !json.data) {

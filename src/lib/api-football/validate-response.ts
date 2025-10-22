@@ -1,13 +1,13 @@
 export type APIFootballResponse = {
   get: string
-  parameters: Record<string, any>
+  parameters: Record<string, unknown>
   errors?: Record<string, string>
   results: number
   paging: { current: number; total: number }
-  response: any[]
+  response: unknown[]
 }
 
-export function validateAPIFootballResponse(data: any): {
+export function validateAPIFootballResponse(data: unknown): {
   valid: boolean
   error?: string
   details?: Record<string, string>
@@ -17,17 +17,26 @@ export function validateAPIFootballResponse(data: any): {
     return { valid: false, error: 'Invalid response structure' }
   }
 
+  const response = data as Record<string, unknown>
+
   // Check for API-Football errors
-  if (data.errors && Object.keys(data.errors).length > 0) {
-    return {
-      valid: false,
-      error: 'API-Football validation error',
-      details: data.errors,
+  if (response.errors && typeof response.errors === 'object') {
+    const errors = response.errors as Record<string, string>
+    if (Object.keys(errors).length > 0) {
+      return {
+        valid: false,
+        error: 'API-Football validation error',
+        details: errors,
+      }
     }
   }
 
   // Check if results is 0 but we expected data
-  if (data.results === 0 && (!data.response || data.response.length === 0)) {
+  if (
+    response.results === 0 &&
+    (!response.response || 
+     (Array.isArray(response.response) && response.response.length === 0))
+  ) {
     return {
       valid: false,
       error: 'No data returned from API-Football',
