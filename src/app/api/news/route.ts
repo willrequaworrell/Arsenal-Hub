@@ -1,4 +1,3 @@
-// app/api/news/route.ts
 import { NextResponse } from "next/server"
 import { getTeamConfig } from "@/lib/config/team"
 import { GuardianResponseSchema } from "@/lib/api-football/schemas/articles"
@@ -29,13 +28,28 @@ export async function GET(request: Request) {
     if (!res.ok) {
       return NextResponse.json(
         { ok: false, error: `Guardian API error ${res.status}` },
-        { status: 502 }
+        { status: res.status }
       )
     }
 
     const data = await res.json()
-    const parsed = GuardianResponseSchema.safeParse(data)
+    // Guardian error object: { response: { status: "error", message: "..."} }
+    if (
+      !data.response ||
+      typeof data.response.status !== "string" ||
+      data.response.status !== "ok"
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: data.response?.message || "Guardian API error",
+          details: data.response,
+        },
+        { status: 502 }
+      )
+    }
 
+    const parsed = GuardianResponseSchema.safeParse(data)
     if (!parsed.success) {
       return NextResponse.json(
         { ok: false, error: "Invalid Guardian response", issues: parsed.error.format() },
@@ -52,8 +66,16 @@ export async function GET(request: Request) {
       thumbnail: article.fields?.thumbnail ?? null,
     }))
 
+    // If nothing in results, return a different error
+    if (articles.length === 0) {
+      return NextResponse.json(
+        { ok: false, error: "No news articles found", data: [] },
+        { status: 404 }
+      )
+    }
+
     return NextResponse.json({ ok: true, data: articles })
-  } catch {
+  } catch (err) {
     return NextResponse.json(
       { ok: false, error: "Upstream failure" },
       { status: 502 }
