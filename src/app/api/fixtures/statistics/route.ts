@@ -1,20 +1,25 @@
+// app/api/fixtures/statistics/route.ts
 import { fetchFromAPIFootball } from '@/lib/api-football/api-football'
-import { FixturesArraySchema } from '@/lib/api-football/schemas/fixtures'
+import { FixtureStatisticsSchema } from '@/lib/api-football/schemas/statistics'
 import { validateAPIFootballResponse } from '@/lib/api-football/validate-response'
-import { API_FOOTBALL, DEFAULT_TEAM_ID } from '@/lib/config/api-football'
 import { NextResponse } from 'next/server'
 
-export const revalidate = 60
+export const revalidate = 300 // 5 minutes
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const teamId = searchParams.get("teamId") ?? DEFAULT_TEAM_ID
+  const fixtureId = searchParams.get('fixtureId')
+
+  if (!fixtureId) {
+    return NextResponse.json(
+      { ok: false, error: 'fixtureId is required' },
+      { status: 400 }
+    )
+  }
 
   try {
-    const data = await fetchFromAPIFootball('/fixtures', {
-      league: API_FOOTBALL.leagueId,
-      season: API_FOOTBALL.season,
-      team: teamId
+    const data = await fetchFromAPIFootball('/fixtures/statistics', {
+      fixture: fixtureId,
     })
 
     // Validate API-Football response
@@ -26,21 +31,20 @@ export async function GET(request: Request) {
       )
     }
 
-    const fixtures = data?.response ?? null
-    const parsed = FixturesArraySchema.safeParse(fixtures)
+    const statistics = data?.response ?? null
+    const parsed = FixtureStatisticsSchema.safeParse(statistics)
 
     if (!parsed.success) {
       return NextResponse.json(
-        { ok: false, error: "Invalid fixtures payload", issues: parsed.error.message },
+        { ok: false, error: 'Invalid statistics payload', issues: parsed.error.message },
         { status: 502 }
       )
     }
 
     return NextResponse.json({ ok: true, data: parsed.data })
-
   } catch (error) {
     return NextResponse.json(
-      { ok: false, error: "Upstream failure" },
+      { ok: false, error: 'Upstream failure' },
       { status: 502 }
     )
   }

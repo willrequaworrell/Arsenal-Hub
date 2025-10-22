@@ -5,10 +5,11 @@ import { useState } from "react"
 import Image from "next/image"
 import { TableRow, TableCell } from '@/components/ui/table'
 import { Fixture } from "@/lib/api-football/schemas/fixtures"
+import { FixtureStatistics } from "@/lib/api-football/schemas/statistics"
 import { getTeamConfig } from "@/lib/config/team"
+import { getFixtureStatistics } from "@/lib/data/statistics"
 import missingLogo from "../../../../public/missingLogo.png"
 import { cn } from "@/lib/utils"
-import { ChevronDown } from "lucide-react"
 import MatchDetails from "./match-details"
 import { getTeamAbbreviation } from "@/lib/api-football/team-abbreviations"
 
@@ -24,6 +25,9 @@ const RESULT_COLOR_VARIANTS = {
 
 export default function MatchRow({ fixture }: MatchRowProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [statistics, setStatistics] = useState<FixtureStatistics | null>(null)
+  const [loading, setLoading] = useState(false)
+  
   const { teams, goals, fixture: fixtureData } = fixture
   const homeTeam = teams.home
   const awayTeam = teams.away
@@ -67,10 +71,24 @@ export default function MatchRow({ fixture }: MatchRowProps) {
     day: "numeric"
   })
 
+  // Handle expand/collapse with statistics fetching
+  const handleExpand = async () => {
+    if (!isExpanded && !statistics && isFinished) {
+      setLoading(true)
+      const result = await getFixtureStatistics(fixtureData.id)
+      // console.log(result)
+      if (result.success && result.data) {
+        setStatistics(result.data)
+      }
+      setLoading(false)
+    }
+    setIsExpanded(prev => !prev)
+  }
+
   return (
     <>
       <TableRow 
-        onClick={() => isFinished && setIsExpanded(prev => !prev)}
+        onClick={() => isFinished && handleExpand()}
         className={cn(
           "flex items-center py-2",
           isFinished && "cursor-pointer hover:bg-slate-50",
@@ -100,7 +118,7 @@ export default function MatchRow({ fixture }: MatchRowProps) {
 
         {/* Home/Away Badge */}
         <TableCell>
-          <span className="flex items-center justify-center rounded bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+          <span className="flex items-center justify-center rounded bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
             {venue}
           </span>
         </TableCell>
@@ -112,7 +130,7 @@ export default function MatchRow({ fixture }: MatchRowProps) {
           )}
           {!isUpcoming && teamScore !== null && opponentScore !== null ? (
             <span className={cn(
-              "inline-flex items-center justify-center rounded px-2 py-1 text-sm font-bold text-white",
+              "inline-flex items-center justify-center rounded px-3 py-2 text-lg font-bold text-white",
               matchResult ? RESULT_COLOR_VARIANTS[matchResult] : "bg-slate-400"
             )}>
               {teamScore} - {opponentScore}
@@ -136,6 +154,8 @@ export default function MatchRow({ fixture }: MatchRowProps) {
               fixture={fixture} 
               isHomeTeam={isHomeTeam}
               configuredTeamName={teamObj.name}
+              statistics={statistics}
+              loading={loading}
             />
           </TableCell>
         </TableRow>
