@@ -1,23 +1,29 @@
 // app/(season)/components/match-details.tsx
+"use client"
+
 import { Fixture } from "@/lib/api-football/schemas/fixtures"
 import { FixtureStatistics } from "@/lib/api-football/schemas/statistics"
 import Image from "next/image"
 import missingLogo from "../../../../public/missingLogo.png"
+import { getTeamAbbreviation } from "@/lib/api-football/team-abbreviations"
+import { Label, Pie, PieChart } from "recharts"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 
 type MatchDetailsProps = {
   fixture: Fixture
   isHomeTeam: boolean
-  configuredTeamName: string
   statistics: FixtureStatistics | null
-  loading: boolean
 }
 
 export default function MatchDetails({ 
   fixture, 
   isHomeTeam, 
-  configuredTeamName,
   statistics,
-  loading 
 }: MatchDetailsProps) {
   const { teams, goals, score, fixture: fixtureData } = fixture
   const homeTeam = teams.home
@@ -38,50 +44,149 @@ export default function MatchDetails({
     return { home: homeStat, away: awayStat }
   }
 
+  // Get possession percentages
+  const { home: homePossession, away: awayPossession } = getStat('Ball Possession')
+  const yourPossession = isHomeTeam ? homePossession : awayPossession
+  const opponentPossession = isHomeTeam ? awayPossession : homePossession
+  
+  // Parse possession values
+  const yourPossessionNum = typeof yourPossession === 'string' 
+    ? parseInt(yourPossession) 
+    : Number(yourPossession)
+  const opponentPossessionNum = typeof opponentPossession === 'string'
+    ? parseInt(opponentPossession)
+    : Number(opponentPossession)
+
+  // Chart data
+  const chartData = [
+    { team: yourTeam.name, possession: yourPossessionNum, fill: "#EF4444" },
+    { team: opponent.name, possession: opponentPossessionNum, fill: "#1F2937" },
+  ]
+
+  const chartConfig = {
+    possession: {
+      label: "Possession",
+    },
+  } satisfies ChartConfig
+
   // Key stats to display
   const statsToShow = [
-    { key: 'Ball Possession', label: 'Possession' },
-    { key: 'Total Shots', label: 'Shots' },
-    { key: 'Shots on Goal', label: 'Shots on Target' },
-    { key: 'Total passes', label: 'Passes' },
-    { key: 'Passes accurate', label: 'Accurate Passes' },
-    { key: 'Fouls', label: 'Fouls' },
-    { key: 'Corner Kicks', label: 'Corners' },
+    { key: 'Shots on Goal', label: 'Shots on Goal' },
+    { key: 'Total Shots', label: 'Shot Attempts' },
+    { key: 'Yellow Cards', label: 'Yellow Cards' },
+    { key: 'Corner Kicks', label: 'Corner Kicks' },
+    { key: 'Goalkeeper Saves', label: 'Saves' },
   ]
 
   return (
-    <div className="border-t bg-gradient-to-b from-slate-50 to-white p-6 animate-in fade-in slide-in-from-top-2 duration-200">
-      <div className="mx-auto max-w-4xl space-y-6">
+    <div className="border-t bg-white p-6 animate-in fade-in slide-in-from-top-2 duration-200">
+      <div className="mx-auto max-w-5xl space-y-6">
         
-        {/* Team Headers - Same as before */}
-        <div className="flex items-center justify-between">
-          {/* ... your existing header code ... */}
+        {/* Header: Team Names */}
+        <div className="flex items-center justify-between border-b pb-4">
+          <div className="flex items-center gap-3">
+            <Image
+              src={yourTeam.logo || missingLogo}
+              alt={yourTeam.name}
+              width={40}
+              height={40}
+              className="size-10"
+            />
+            <span className="font-bold text-lg">{getTeamAbbreviation(yourTeam.name)}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-lg">{getTeamAbbreviation(opponent.name)}</span>
+            <Image
+              src={opponent.logo || missingLogo}
+              alt={opponent.name}
+              width={40}
+              height={40}
+              className="size-10"
+            />
+          </div>
         </div>
 
-        {/* Match Statistics */}
-        <div className="rounded-lg border bg-white p-4">
-          <h4 className="mb-4 text-sm font-bold text-center">Match Statistics</h4>
-          
-          {loading && (
-            <div className="py-8 text-center text-sm text-slate-400">
-              Loading statistics...
-            </div>
-          )}
+        {!statistics ? (
+          <div className="py-12 text-center text-sm text-slate-400">
+            Statistics unavailable
+          </div>
+        ) : (
+          <>
+            {/* Top Section: Possession Chart + Match Events */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {/* Possession Donut Chart */}
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <h3 className="text-sm font-semibold text-slate-600">Possession</h3>
+                
+                <div className="relative">
+                  <ChartContainer
+                    config={chartConfig}
+                    className="mx-auto aspect-square h-[200px]"
+                  >
+                    <PieChart>
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent hideLabel />}
+                      />
+                      <Pie
+                        data={chartData}
+                        dataKey="possession"
+                        nameKey="team"
+                        innerRadius={60}
+                        outerRadius={80}
+                        strokeWidth={2}
+                      />
+                    </PieChart>
+                  </ChartContainer>
+                  
+                  {/* Center logos overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={yourTeam.logo || missingLogo}
+                        alt={yourTeam.name}
+                        width={28}
+                        height={28}
+                        className="size-7"
+                      />
+                      <div className="h-8 w-px bg-slate-300" />
+                      <Image
+                        src={opponent.logo || missingLogo}
+                        alt={opponent.name}
+                        width={28}
+                        height={28}
+                        className="size-7"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-          {!loading && !statistics && (
-            <div className="py-8 text-center text-sm text-slate-400">
-              Statistics unavailable
-            </div>
-          )}
+                <div className="flex items-center gap-6 text-lg font-bold">
+                  <span className="text-red-500">{yourPossessionNum}%</span>
+                  <span className="text-gray-800">{opponentPossessionNum}%</span>
+                </div>
+              </div>
 
-          {!loading && statistics && (
-            <div className="space-y-4">
+              {/* Match Events - Placeholder */}
+              <div>
+                <h3 className="mb-4 text-sm font-semibold text-slate-600">Match Events</h3>
+                <div className="space-y-3 rounded-lg bg-slate-50 p-4 min-h-[250px] flex items-center justify-center">
+                  <p className="text-xs text-slate-400 text-center">
+                    Goal events require additional API data
+                    <br />
+                    (events endpoint)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section: Detailed Stats */}
+            <div className="space-y-3 border-t pt-6">
               {statsToShow.map((stat) => {
                 const { home, away } = getStat(stat.key)
                 const yourValue = isHomeTeam ? home : away
                 const opponentValue = isHomeTeam ? away : home
                 
-                // Handle percentage values
                 const yourNum = typeof yourValue === 'string' && yourValue.includes('%') 
                   ? parseInt(yourValue) 
                   : Number(yourValue)
@@ -93,25 +198,21 @@ export default function MatchDetails({
                 const yourPercentage = total > 0 ? (yourNum / total) * 100 : 50
                 
                 return (
-                  <div key={stat.key} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-semibold text-slate-700 w-16 text-right">
-                        {yourValue}
-                      </span>
-                      <span className="flex-1 text-center text-xs text-slate-500">
+                  <div key={stat.key}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-sm w-12 text-left">{yourValue}</span>
+                      <span className="flex-1 text-center text-xs font-medium text-slate-600">
                         {stat.label}
                       </span>
-                      <span className="font-semibold text-slate-700 w-16">
-                        {opponentValue}
-                      </span>
+                      <span className="font-bold text-sm w-12 text-right">{opponentValue}</span>
                     </div>
-                    <div className="flex h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div className="flex h-1.5 overflow-hidden rounded-full bg-slate-200">
                       <div 
                         className="bg-red-500"
                         style={{ width: `${yourPercentage}%` }}
                       />
                       <div 
-                        className="bg-slate-400"
+                        className="bg-gray-800"
                         style={{ width: `${100 - yourPercentage}%` }}
                       />
                     </div>
@@ -119,8 +220,8 @@ export default function MatchDetails({
                 )
               })}
             </div>
-          )}
-        </div>
+          </>
+        )}
 
       </div>
     </div>

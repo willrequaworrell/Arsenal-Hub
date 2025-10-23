@@ -3,10 +3,11 @@
 import { useState } from "react"
 import Image from "next/image"
 import { TableRow, TableCell } from '@/components/ui/table'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Fixture } from "@/lib/api-football/schemas/fixtures"
 import { FixtureStatistics } from "@/lib/api-football/schemas/statistics"
 import { getTeamConfig } from "@/lib/config/team"
-import { getFixtureStatistics } from "@/lib/data/statistics"
+import { getFixtureStatistics } from "@/lib/data/fixture-statistics"
 import missingLogo from "../../../../public/missingLogo.png"
 import { cn } from "@/lib/utils"
 import MatchDetails from "./match-details"
@@ -23,32 +24,38 @@ const RESULT_COLOR_VARIANTS = {
 } 
 
 export default function MatchRow({ fixture }: MatchRowProps) {
+  // State
   const [isExpanded, setIsExpanded] = useState(false)
   const [statistics, setStatistics] = useState<FixtureStatistics | null>(null)
   const [loading, setLoading] = useState(false)
-  
-  const { teams, goals, fixture: fixtureData } = fixture
-  const homeTeam = teams.home
-  const awayTeam = teams.away
-  
+  const [error, setError] = useState<string | null>(null)
+
   // Get configured team name
   const teamId = process.env.NEXT_PUBLIC_TEAM_ID || "42"
   const teamObj = getTeamConfig(teamId)
+  
+  // Determine home/away and opponent
+  const { teams, goals, fixture: fixtureData } = fixture
+  const homeTeam = teams.home
+  const awayTeam = teams.away
+  const isHomeTeam = homeTeam.name === teamObj.name
+  const opponent = isHomeTeam ? awayTeam : homeTeam
+  const venue = isHomeTeam ? "Home" : "Away"
+  const teamScore = isHomeTeam ? goals.home : goals.away
+  const opponentScore = isHomeTeam ? goals.away : goals.home
   
   // Determine match status
   const status = fixtureData.status.short
   const isFinished = ["FT", "AET", "PEN"].includes(status)
   const isLive = ["1H", "2H", "HT", "ET", "BT", "P"].includes(status)
   const isUpcoming = goals.home === null || goals.away === null
-  
-  // Determine if configured team is playing and get opponent
-  const isHomeTeam = homeTeam.name === teamObj.name
-  const opponent = isHomeTeam ? awayTeam : homeTeam
-  const venue = isHomeTeam ? "Home" : "Away"
-  
-  // Calculate scores from your team's perspective
-  const teamScore = isHomeTeam ? goals.home : goals.away
-  const opponentScore = isHomeTeam ? goals.away : goals.home
+
+  // Format match date
+  const matchDate = new Date(fixtureData.date)
+  const formattedDate = matchDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric"
+  })
   
   // Determine result
   let matchResult: 'W' | 'D' | 'L' | null = null
@@ -62,26 +69,28 @@ export default function MatchRow({ fixture }: MatchRowProps) {
       matchResult = 'L'
     }
   }
-  
-  // Format date
-  const matchDate = new Date(fixtureData.date)
-  const formattedDate = matchDate.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric"
-  })
 
   // Handle expand/collapse with statistics fetching
   const handleExpand = async () => {
-    if (!isExpanded && !statistics && isFinished) {
+    // Always toggle expanded state immediately
+    const willBeExpanded = !isExpanded
+    setIsExpanded(willBeExpanded)
+
+    // Fetch statistics only if expanding and we don't have data yet
+    if (willBeExpanded && !statistics && !error && isFinished) {
       setLoading(true)
+      setError(null)
+      
       const result = await getFixtureStatistics(fixtureData.id)
-      // console.log(result)
+      
       if (result.success && result.data) {
         setStatistics(result.data)
+      } else {
+        setError(result.message || 'Failed to load statistics')
       }
+      
       setLoading(false)
     }
-    setIsExpanded(prev => !prev)
   }
 
   return (
@@ -95,8 +104,6 @@ export default function MatchRow({ fixture }: MatchRowProps) {
           isExpanded && "bg-slate-50"
         )}
       >
-        
-
         {/* Opponent */}
         <TableCell className="flex flex-1 items-center gap-2">
           <Image
@@ -111,6 +118,7 @@ export default function MatchRow({ fixture }: MatchRowProps) {
             <span className="hidden sm:inline">{opponent.name}</span>
           </span>
         </TableCell>
+
         {/* Date Column */}
         <TableCell className="w-20 text-slate-600">
           <span className="flex items-center justify-center rounded bg-slate-100 px-3 py-2 text-md font-semibold text-slate-600">
@@ -152,16 +160,88 @@ export default function MatchRow({ fixture }: MatchRowProps) {
       {isExpanded && isFinished && (
         <TableRow className="flex">
           <TableCell colSpan={4} className="w-full p-0">
-            <MatchDetails 
-              fixture={fixture} 
-              isHomeTeam={isHomeTeam}
-              configuredTeamName={teamObj.name}
-              statistics={statistics}
-              loading={loading}
-            />
+            {loading ? (
+              <LoadingSkeleton />
+            ) : error ? (
+              <ErrorState error={error} onRetry={handleExpand} />
+            ) : (
+              <MatchDetails 
+                fixture={fixture} 
+                isHomeTeam={isHomeTeam}
+                statistics={statistics}
+              />
+            )}
           </TableCell>
         </TableRow>
       )}
     </>
+  )
+}
+
+// Loading Skeleton Component
+function LoadingSkeleton() {
+  return (
+    <div className="border-t bg-gradient-to-b from-slate-50 to-white p-6 animate-in fade-in duration-200">
+      <div className="mx-auto max-w-4xl space-y-6">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col items-center gap-2">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Skeleton className="h-12 w-32" />
+            <Skeleton className="h-3 w-20" />
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+        </div>
+
+        {/* Stats skeleton */}
+        <div className="rounded-lg border bg-white p-4">
+          <Skeleton className="h-5 w-32 mb-4" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+                <Skeleton className="h-2 w-full rounded-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Error State Component
+function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) {
+  return (
+    <div className="border-t bg-gradient-to-b from-slate-50 to-white p-6 animate-in fade-in duration-200">
+      <div className="mx-auto max-w-4xl">
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="mb-4 text-4xl">⚠️</div>
+          <h3 className="mb-2 text-lg font-semibold text-slate-900">
+            Failed to Load Statistics
+          </h3>
+          <p className="mb-4 text-sm text-slate-600">{error}</p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onRetry()
+            }}
+            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }

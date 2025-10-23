@@ -1,3 +1,4 @@
+// lib/api-football/validate-response.ts
 export type APIFootballResponse = {
   get: string
   parameters: Record<string, unknown>
@@ -19,27 +20,15 @@ export function validateAPIFootballResponse(data: unknown): {
 
   const response = data as Record<string, unknown>
 
-  // Check for API-Football errors
+  // Check for API-Football errors - this is the ONLY validation we need
   if (response.errors && typeof response.errors === 'object') {
     const errors = response.errors as Record<string, string>
     if (Object.keys(errors).length > 0) {
       return {
         valid: false,
-        error: 'API-Football validation error',
+        error: 'API-Football error',
         details: errors,
       }
-    }
-  }
-
-  // Check if results is 0 but we expected data
-  if (
-    response.results === 0 &&
-    (!response.response || 
-     (Array.isArray(response.response) && response.response.length === 0))
-  ) {
-    return {
-      valid: false,
-      error: 'No data returned from API-Football',
     }
   }
 
