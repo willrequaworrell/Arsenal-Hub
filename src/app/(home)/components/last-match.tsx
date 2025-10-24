@@ -6,7 +6,7 @@ import z from "zod"
 import missingLogo from "../../../../public/missingLogo.png"
 import { getFixtures } from "@/lib/data/fixtures"
 import DataUnavailable from "@/components/ui/custom/data-unavailable"
-import { getTeamAbbreviation } from "@/lib/api-football/team-abbreviations"
+import { getTeamAbbreviation } from "@/lib/api-football/team-data"
 
 type FixtureTeam = z.infer<typeof FixtureTeamSchema>
 type Goals = z.infer<typeof GoalsSchema>
@@ -40,7 +40,7 @@ const LastMatch = async () => {
           />
           <p className="flex-1 font-semibold text-[clamp(0.875rem,1.5vw,1rem)]">
             {/* Show abbreviation on mobile, full name on larger screens */}
-            <span className="sm:hidden">{getTeamAbbreviation(homeTeam.name)}</span>
+            <span className="sm:hidden">{getTeamAbbreviation(homeTeam.id)}</span>
             <span className="hidden sm:inline">{homeTeam.name}</span>
           </p>
           <p className="font-bold text-[clamp(1rem,2vw,2rem)]">
@@ -58,7 +58,7 @@ const LastMatch = async () => {
           />
           <p className="flex-1 font-semibold text-[clamp(0.875rem,1.5vw,1rem)]">
             {/* Show abbreviation on mobile, full name on larger screens */}
-            <span className="sm:hidden">{getTeamAbbreviation(awayTeam.name)}</span>
+            <span className="sm:hidden">{getTeamAbbreviation(awayTeam.id)}</span>
             <span className="hidden sm:inline">{awayTeam.name}</span>
           </p>
           <p className="font-bold text-[clamp(1rem,2vw,2rem)]">

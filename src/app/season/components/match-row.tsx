@@ -1,17 +1,19 @@
+// app/(season)/components/match-row.tsx
 'use client'
 
 import { useState } from "react"
 import Image from "next/image"
+import { useQuery } from "@tanstack/react-query"
 import { TableRow, TableCell } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Fixture } from "@/lib/api-football/schemas/fixtures"
-import { FixtureStatistics } from "@/lib/api-football/schemas/statistics"
 import { getTeamConfig } from "@/lib/config/team"
 import { getFixtureStatistics } from "@/lib/data/fixture-statistics"
+import { getFixtureEvents } from "@/lib/data/fixture-events"
 import missingLogo from "../../../../public/missingLogo.png"
 import { cn } from "@/lib/utils"
 import MatchDetails from "./match-details"
-import { getTeamAbbreviation } from "@/lib/api-football/team-abbreviations"
+import { getTeamAbbreviation } from "@/lib/api-football/team-data"
 
 type MatchRowProps = {
   fixture: Fixture
@@ -24,12 +26,8 @@ const RESULT_COLOR_VARIANTS = {
 } 
 
 export default function MatchRow({ fixture }: MatchRowProps) {
-  // State
   const [isExpanded, setIsExpanded] = useState(false)
-  const [statistics, setStatistics] = useState<FixtureStatistics | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
+  
   // Get configured team name
   const teamId = process.env.NEXT_PUBLIC_TEAM_ID || "42"
   const teamObj = getTeamConfig(teamId)
@@ -70,27 +68,43 @@ export default function MatchRow({ fixture }: MatchRowProps) {
     }
   }
 
-  // Handle expand/collapse with statistics fetching
-  const handleExpand = async () => {
-    // Always toggle expanded state immediately
-    const willBeExpanded = !isExpanded
-    setIsExpanded(willBeExpanded)
-
-    // Fetch statistics only if expanding and we don't have data yet
-    if (willBeExpanded && !statistics && !error && isFinished) {
-      setLoading(true)
-      setError(null)
-      
+  // TanStack Query for statistics
+  const { 
+    data: statistics, 
+    isLoading: statsLoading,
+    isError: statsError 
+  } = useQuery({
+    queryKey: ['statistics', fixtureData.id],
+    queryFn: async () => {
       const result = await getFixtureStatistics(fixtureData.id)
-      
-      if (result.success && result.data) {
-        setStatistics(result.data)
-      } else {
-        setError(result.message || 'Failed to load statistics')
-      }
-      
-      setLoading(false)
-    }
+      if (!result.success) throw new Error(result.message)
+      return result.data
+    },
+    enabled: isExpanded && isFinished,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+
+  // TanStack Query for events
+  const { 
+    data: events, 
+    isLoading: eventsLoading,
+    isError: eventsError 
+  } = useQuery({
+    queryKey: ['events', fixtureData.id],
+    queryFn: async () => {
+      const result = await getFixtureEvents(fixtureData.id)
+      if (!result.success) throw new Error(result.message)
+      return result.data
+    },
+    enabled: isExpanded && isFinished,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const isLoading = statsLoading || eventsLoading
+  const hasError = statsError && eventsError // Both failed
+  
+  const handleExpand = () => {
+    setIsExpanded(prev => !prev)
   }
 
   return (
@@ -114,7 +128,7 @@ export default function MatchRow({ fixture }: MatchRowProps) {
             className="size-7"
           />
           <span className="font-semibold text-sm sm:text-base">
-            <span className="sm:hidden">{getTeamAbbreviation(opponent.name)}</span>
+            <span className="sm:hidden">{getTeamAbbreviation(opponent.id)}</span>
             <span className="hidden sm:inline">{opponent.name}</span>
           </span>
         </TableCell>
@@ -160,15 +174,16 @@ export default function MatchRow({ fixture }: MatchRowProps) {
       {isExpanded && isFinished && (
         <TableRow className="flex">
           <TableCell colSpan={4} className="w-full p-0">
-            {loading ? (
+            {isLoading ? (
               <LoadingSkeleton />
-            ) : error ? (
-              <ErrorState error={error} onRetry={handleExpand} />
+            ) : hasError ? (
+              <ErrorState error="Failed to load match details" onRetry={handleExpand} />
             ) : (
               <MatchDetails 
                 fixture={fixture} 
                 isHomeTeam={isHomeTeam}
-                statistics={statistics}
+                statistics={statistics ?? null}
+                events={events ?? null}
               />
             )}
           </TableCell>
