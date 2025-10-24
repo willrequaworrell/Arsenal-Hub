@@ -189,7 +189,7 @@ export default function MatchDetails({
                     goals_events.map((goal, idx) => (
                       <div key={idx} className="flex items-center gap-3 text-sm bg-white rounded p-2">
                         <span className="font-mono text-xs font-semibold text-slate-600 w-10">
-                          {goal.time.elapsed}'
+                          {goal.time.elapsed}
                         </span>
                         <Image
                           src={goal.team.logo}
