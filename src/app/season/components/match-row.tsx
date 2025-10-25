@@ -1,7 +1,6 @@
 // app/(season)/components/match-row.tsx
 'use client'
 
-import { useState } from "react"
 import Image from "next/image"
 import { useQuery } from "@tanstack/react-query"
 import { TableRow, TableCell } from '@/components/ui/table'
@@ -17,6 +16,8 @@ import { getTeamAbbreviation } from "@/lib/api-football/team-data"
 
 type MatchRowProps = {
   fixture: Fixture
+  isExpanded: boolean
+  onToggleExpand: () => void
 }
 
 const RESULT_COLOR_VARIANTS = {
@@ -25,9 +26,7 @@ const RESULT_COLOR_VARIANTS = {
   L: "bg-red-600",
 } 
 
-export default function MatchRow({ fixture }: MatchRowProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  
+export default function MatchRow({ fixture, isExpanded, onToggleExpand }: MatchRowProps) {
   // Get configured team name
   const teamId = process.env.NEXT_PUBLIC_TEAM_ID || "42"
   const teamObj = getTeamConfig(teamId)
@@ -81,7 +80,7 @@ export default function MatchRow({ fixture }: MatchRowProps) {
       return result.data
     },
     enabled: isExpanded && isFinished,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 
   // TanStack Query for events
@@ -101,16 +100,18 @@ export default function MatchRow({ fixture }: MatchRowProps) {
   })
 
   const isLoading = statsLoading || eventsLoading
-  const hasError = statsError && eventsError // Both failed
+  const hasError = statsError && eventsError
   
   const handleExpand = () => {
-    setIsExpanded(prev => !prev)
+    if (isFinished) {
+      onToggleExpand()
+    }
   }
 
   return (
     <>
       <TableRow 
-        onClick={() => isFinished && handleExpand()}
+        onClick={handleExpand}
         className={cn(
           "flex items-center py-2",
           isFinished && "cursor-pointer hover:bg-slate-50",
@@ -177,13 +178,14 @@ export default function MatchRow({ fixture }: MatchRowProps) {
             {isLoading ? (
               <LoadingSkeleton />
             ) : hasError ? (
-              <ErrorState error="Failed to load match details" onRetry={handleExpand} />
+              <ErrorState error="Failed to load match details" onRetry={onToggleExpand} />
             ) : (
               <MatchDetails 
                 fixture={fixture} 
                 isHomeTeam={isHomeTeam}
                 statistics={statistics ?? null}
                 events={events ?? null}
+                onClose={onToggleExpand}
               />
             )}
           </TableCell>

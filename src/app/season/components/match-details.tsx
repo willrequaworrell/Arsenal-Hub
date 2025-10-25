@@ -12,14 +12,16 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { FixtureEvents } from "@/lib/api-football/schemas/fixture-events"
+import { FixtureEvents, Event } from "@/lib/api-football/schemas/fixture-events"
 import { getTeamAbbreviation } from "@/lib/api-football/team-data"
+import { X } from "lucide-react"
 
 type MatchDetailsProps = {
   fixture: Fixture
   isHomeTeam: boolean
   statistics: FixtureStatistics | null
   events: FixtureEvents | null
+  onClose: () => void
 }
 
 export default function MatchDetails({
@@ -27,6 +29,7 @@ export default function MatchDetails({
   isHomeTeam,
   statistics,
   events,
+  onClose,
 }: MatchDetailsProps) {
   const { teams, goals, score, fixture: fixtureData } = fixture
   const homeTeam = teams.home
@@ -72,8 +75,10 @@ export default function MatchDetails({
     },
   } satisfies ChartConfig
 
-  // Filter for goals only
-  const goals_events = events?.filter(e => e.type === "Goal") ?? []
+  // Filter and sort all match events
+  const matchEvents = events?.filter(e => 
+    e.type === "Goal" || e.type === "Card" || e.type === "subst"
+  ).sort((a, b) => a.time.elapsed - b.time.elapsed) ?? []
 
   // Key stats to display
   const statsToShow = [
@@ -88,21 +93,33 @@ export default function MatchDetails({
     <div className="border-t bg-white p-6 animate-in fade-in slide-in-from-top-2 duration-200">
       <div className="mx-auto max-w-5xl">
         
-        {/* Legend - Top Left */}
+        {/* Header with Legend and Close Button */}
         {(statistics || events) && (
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-red-500" />
-              <span className="text-xs font-medium text-slate-600">
-                {getTeamAbbreviation(yourTeam.id)}
-              </span>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-red-500" />
+                <span className="text-xs font-medium text-slate-600">
+                  {getTeamAbbreviation(yourTeam.id)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-gray-800" />
+                <span className="text-xs font-medium text-slate-600">
+                  {getTeamAbbreviation(opponent.id)}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-gray-800" />
-              <span className="text-xs font-medium text-slate-600">
-                {getTeamAbbreviation(opponent.id)}
-              </span>
-            </div>
+            
+            {/* Hide Button */}
+            <button
+              onClick={onClose}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
+              aria-label="Hide match details"
+            >
+              <span>Hide</span>
+              <X className="h-4 w-4" />
+            </button>
           </div>
         )}
 
@@ -112,102 +129,85 @@ export default function MatchDetails({
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Top Section: Possession Chart + Match Events */}
+            {/* Top Section: Possession Chart + Match Events Timeline */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Possession Donut Chart */}
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <h3 className="text-sm font-semibold text-slate-600">Possession</h3>
+              <div className="flex flex-col">
+                <h3 className="mb-4 text-sm font-semibold text-slate-600">Possession</h3>
+                <div className="rounded-lg bg-slate-50 p-4 flex flex-col items-center justify-center h-[300px]">
+                  {statistics ? (
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="relative">
+                        <ChartContainer
+                          config={chartConfig}
+                          className="mx-auto aspect-square h-[200px]"
+                        >
+                          <PieChart>
+                            <ChartTooltip
+                              cursor={false}
+                              content={<ChartTooltipContent hideLabel />}
+                            />
+                            <Pie
+                              data={chartData}
+                              dataKey="possession"
+                              nameKey="team"
+                              innerRadius={60}
+                              outerRadius={80}
+                              strokeWidth={2}
+                              startAngle={90}
+                              endAngle={-270}
+                            />
+                          </PieChart>
+                        </ChartContainer>
 
-                {statistics ? (
-                  <>
-                    <div className="relative">
-                      <ChartContainer
-                        config={chartConfig}
-                        className="mx-auto aspect-square h-[200px]"
-                      >
-                        <PieChart>
-                          <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
-                          />
-                          <Pie
-                            data={chartData}
-                            dataKey="possession"
-                            nameKey="team"
-                            innerRadius={60}
-                            outerRadius={80}
-                            strokeWidth={2}
-                            startAngle={90}
-                            endAngle={-270}
-                          />
-                        </PieChart>
-                      </ChartContainer>
-
-                      {/* Center logos overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="flex items-center gap-2">
-                          <Image
-                            src={yourTeam.logo || missingLogo}
-                            alt={yourTeam.name}
-                            width={28}
-                            height={28}
-                            className="size-7"
-                          />
-                          <div className="h-8 w-px bg-slate-300" />
-                          <Image
-                            src={opponent.logo || missingLogo}
-                            alt={opponent.name}
-                            width={28}
-                            height={28}
-                            className="size-7"
-                          />
+                        {/* Center logos overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src={yourTeam.logo || missingLogo}
+                              alt={yourTeam.name}
+                              width={28}
+                              height={28}
+                              className="size-7"
+                            />
+                            <div className="h-8 w-px bg-slate-300" />
+                            <Image
+                              src={opponent.logo || missingLogo}
+                              alt={opponent.name}
+                              width={28}
+                              height={28}
+                              className="size-7"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-6 text-lg font-bold">
-                      <span className="text-red-500">{yourPossessionNum}%</span>
-                      <span className="text-gray-800">{opponentPossessionNum}%</span>
+                      <div className="flex items-center gap-6 text-lg font-bold">
+                        <span className="text-red-500">{yourPossessionNum}%</span>
+                        <span className="text-gray-800">{opponentPossessionNum}%</span>
+                      </div>
                     </div>
-                  </>
-                ) : (
-                  <div className="py-8 text-center text-sm text-slate-400">
-                    Statistics unavailable
-                  </div>
-                )}
+                  ) : (
+                    <p className="text-xs text-slate-400 text-center">
+                      Statistics unavailable
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Match Events - Goals */}
-              <div>
-                <h3 className="mb-4 text-sm font-semibold text-slate-600">Goals</h3>
-                <div className="space-y-2 rounded-lg bg-slate-50 p-4 min-h-[250px]">
-                  {goals_events.length === 0 ? (
-                    <p className="text-xs text-slate-400 text-center py-8">
-                      {events ? "No goals scored" : "Events unavailable"}
-                    </p>
+              {/* Match Events Timeline */}
+              <div className="flex flex-col">
+                <h3 className="mb-4 text-sm font-semibold text-slate-600">Match Events</h3>
+                <div className="rounded-lg bg-slate-50 p-4 h-[300px] overflow-y-auto space-y-2">
+                  {matchEvents.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-xs text-slate-400 text-center">
+                        {events ? "No events recorded" : "Events unavailable"}
+                      </p>
+                    </div>
                   ) : (
-                    goals_events.map((goal, idx) => (
-                      <div key={idx} className="flex items-center gap-3 text-sm bg-white rounded p-2">
-                        <span className="font-mono text-xs font-semibold text-slate-600 w-10">
-                          {goal.time.elapsed}
-                        </span>
-                        <Image
-                          src={goal.team.logo}
-                          alt={goal.team.name}
-                          width={20}
-                          height={20}
-                          className="size-5"
-                        />
-                        <div className="flex-1">
-                          <p className="font-semibold text-slate-900">{goal.player.name}</p>
-                          {goal.assist.name && (
-                            <p className="text-xs text-slate-500">
-                              Assist: {goal.assist.name}
-                            </p>
-                          )}
-                        </div>
-                        <span className="text-lg">⚽</span>
-                      </div>
+                    matchEvents.map((event, idx) => (
+                      <MatchEventItem key={idx} event={event} />
                     ))
                   )}
                 </div>
@@ -216,50 +216,125 @@ export default function MatchDetails({
 
             {/* Bottom Section: Detailed Stats */}
             {statistics && (
-              <div className="space-y-3 border-t pt-6">
-                {statsToShow.map((stat) => {
-                  const { home, away } = getStat(stat.key)
-                  const yourValue = isHomeTeam ? home : away
-                  const opponentValue = isHomeTeam ? away : home
+              <div className="flex flex-col">
+                <h3 className="mb-4 text-sm font-semibold text-slate-600">Stats</h3>
+                <div className="rounded-lg bg-slate-50 p-4 space-y-3">
+                  {statsToShow.map((stat) => {
+                    const { home, away } = getStat(stat.key)
+                    const yourValue = isHomeTeam ? home : away
+                    const opponentValue = isHomeTeam ? away : home
 
-                  const yourNum = typeof yourValue === 'string' && yourValue.includes('%')
-                    ? parseInt(yourValue)
-                    : Number(yourValue)
-                  const opponentNum = typeof opponentValue === 'string' && opponentValue.includes('%')
-                    ? parseInt(opponentValue)
-                    : Number(opponentValue)
+                    const yourNum = typeof yourValue === 'string' && yourValue.includes('%')
+                      ? parseInt(yourValue)
+                      : Number(yourValue)
+                    const opponentNum = typeof opponentValue === 'string' && opponentValue.includes('%')
+                      ? parseInt(opponentValue)
+                      : Number(opponentValue)
 
-                  const total = yourNum + opponentNum
-                  const yourPercentage = total > 0 ? (yourNum / total) * 100 : 50
+                    const total = yourNum + opponentNum
+                    const yourPercentage = total > 0 ? (yourNum / total) * 100 : 50
 
-                  return (
-                    <div key={stat.key}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-sm w-12 text-left">{yourValue}</span>
-                        <span className="flex-1 text-center text-xs font-medium text-slate-600">
-                          {stat.label}
-                        </span>
-                        <span className="font-bold text-sm w-12 text-right">{opponentValue}</span>
+                    return (
+                      <div key={stat.key}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-bold text-sm w-12 text-left">{yourValue}</span>
+                          <span className="flex-1 text-center text-xs font-medium text-slate-600">
+                            {stat.label}
+                          </span>
+                          <span className="font-bold text-sm w-12 text-right">{opponentValue}</span>
+                        </div>
+                        <div className="flex h-1.5 overflow-hidden rounded-full bg-slate-200">
+                          <div
+                            className="bg-red-500"
+                            style={{ width: `${yourPercentage}%` }}
+                          />
+                          <div
+                            className="bg-gray-800"
+                            style={{ width: `${100 - yourPercentage}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="flex h-1.5 overflow-hidden rounded-full bg-slate-200">
-                        <div
-                          className="bg-red-500"
-                          style={{ width: `${yourPercentage}%` }}
-                        />
-                        <div
-                          className="bg-gray-800"
-                          style={{ width: `${100 - yourPercentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
         )}
 
       </div>
+    </div>
+  )
+}
+
+// Match Event Item Component
+function MatchEventItem({ event }: { event: Event }) {
+  const getEventIcon = () => {
+    switch (event.type) {
+      case "Goal":
+        return "⚽"
+      case "Card":
+        return event.detail === "Yellow Card" ? "🟨" : "🟥"
+      case "subst":
+        return "🔄"
+      default:
+        return "•"
+    }
+  }
+
+  const getEventDescription = () => {
+    switch (event.type) {
+      case "Goal":
+        return (
+          <div className="flex-1">
+            <p className="font-semibold text-slate-900">{event.player.name}</p>
+            {event.assist.name && (
+              <p className="text-xs text-slate-500">
+                Assist: {event.assist.name}
+              </p>
+            )}
+            {event.detail !== "Normal Goal" && (
+              <p className="text-xs text-slate-500 italic">{event.detail}</p>
+            )}
+          </div>
+        )
+      case "Card":
+        return (
+          <div className="flex-1">
+            <p className="font-semibold text-slate-900">{event.player.name}</p>
+            <p className="text-xs text-slate-500">{event.detail}</p>
+          </div>
+        )
+      case "subst":
+        return (
+          <div className="flex-1">
+            <p className="text-sm text-slate-900">
+              <span className="text-green-600">▲</span> {event.player.name}
+            </p>
+            <p className="text-sm text-slate-500">
+              <span className="text-red-600">▼</span> {event.assist.name}
+            </p>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-3 text-sm bg-white rounded p-2">
+      <span className="font-mono text-xs font-semibold text-slate-600 w-10">
+        {event.time.elapsed}'
+      </span>
+      <Image
+        src={event.team.logo}
+        alt={event.team.name}
+        width={20}
+        height={20}
+        className="size-5"
+      />
+      {getEventDescription()}
+      <span className="text-lg">{getEventIcon()}</span>
     </div>
   )
 }
