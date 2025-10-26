@@ -13,7 +13,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { FixtureEvents, Event } from "@/lib/api-football/schemas/fixture-events"
-import { getTeamAbbreviation } from "@/lib/api-football/team-data"
+import { getTeamAbbreviation, getTeamColor, adjustColorForVisibility, getContrastingTeamColors } from "@/lib/api-football/team-data"
 import { X } from "lucide-react"
 
 type MatchDetailsProps = {
@@ -40,6 +40,10 @@ export default function MatchDetails({
   const yourScore = isHomeTeam ? goals.home : goals.away
   const opponentScore = isHomeTeam ? goals.away : goals.home
 
+  // Get team colors
+  const { yourColor: yourTeamColor, opponentColor: opponentTeamColor } =
+    getContrastingTeamColors(yourTeam.id, opponent.id)
+
   // Parse statistics data
   const homeStats = statistics?.find(s => s.team.id === homeTeam.id)
   const awayStats = statistics?.find(s => s.team.id === awayTeam.id)
@@ -63,10 +67,10 @@ export default function MatchDetails({
     ? parseInt(opponentPossession)
     : Number(opponentPossession)
 
-  // Chart data
+  // Chart data with team colors
   const chartData = [
-    { team: opponent.name, possession: opponentPossessionNum, fill: "#1F2937" },
-    { team: yourTeam.name, possession: yourPossessionNum, fill: "#EF4444" },
+    { team: opponent.name, possession: opponentPossessionNum, fill: opponentTeamColor },
+    { team: yourTeam.name, possession: yourPossessionNum, fill: yourTeamColor },
   ]
 
   const chartConfig = {
@@ -76,7 +80,7 @@ export default function MatchDetails({
   } satisfies ChartConfig
 
   // Filter and sort all match events
-  const matchEvents = events?.filter(e => 
+  const matchEvents = events?.filter(e =>
     e.type === "Goal" || e.type === "Card" || e.type === "subst"
   ).sort((a, b) => a.time.elapsed - b.time.elapsed) ?? []
 
@@ -92,32 +96,39 @@ export default function MatchDetails({
   return (
     <div className="border-t bg-white p-6 animate-in fade-in slide-in-from-top-2 duration-200">
       <div className="mx-auto max-w-5xl">
-        
+
         {/* Header with Legend and Close Button */}
         {(statistics || events) && (
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
+            {/* Legend with team colors */}
+            <div className="flex items-center gap-4 rounded-lg bg-slate-50 px-4 py-3">
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-red-500" />
+                <div
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: yourTeamColor }}
+                />
                 <span className="text-xs font-medium text-slate-600">
                   {getTeamAbbreviation(yourTeam.id)}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-gray-800" />
+                <div
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: opponentTeamColor }}
+                />
                 <span className="text-xs font-medium text-slate-600">
                   {getTeamAbbreviation(opponent.id)}
                 </span>
               </div>
             </div>
-            
-            {/* Hide Button */}
+
+            {/* Hide Button with separate background */}
             <button
               onClick={onClose}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
+              className="flex items-center gap-2 px-4 py-3 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
               aria-label="Hide match details"
             >
-              <span>Hide</span>
+              <span>Close</span>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -182,9 +193,9 @@ export default function MatchDetails({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-6 text-lg font-bold">
-                        <span className="text-red-500">{yourPossessionNum}%</span>
-                        <span className="text-gray-800">{opponentPossessionNum}%</span>
+                      <div className="flex items-center gap-6 text-lg font-bold text-slate-900">
+                        <span>{yourPossessionNum}%</span>
+                        <span>{opponentPossessionNum}%</span>
                       </div>
                     </div>
                   ) : (
@@ -245,12 +256,16 @@ export default function MatchDetails({
                         </div>
                         <div className="flex h-1.5 overflow-hidden rounded-full bg-slate-200">
                           <div
-                            className="bg-red-500"
-                            style={{ width: `${yourPercentage}%` }}
+                            style={{
+                              width: `${yourPercentage}%`,
+                              backgroundColor: yourTeamColor
+                            }}
                           />
                           <div
-                            className="bg-gray-800"
-                            style={{ width: `${100 - yourPercentage}%` }}
+                            style={{
+                              width: `${100 - yourPercentage}%`,
+                              backgroundColor: opponentTeamColor
+                            }}
                           />
                         </div>
                       </div>
