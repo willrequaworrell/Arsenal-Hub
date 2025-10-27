@@ -339,7 +339,7 @@ function MatchEventItem({ event }: { event: Event }) {
   return (
     <div className="flex items-center gap-3 text-sm bg-white rounded p-2">
       <span className="font-mono text-xs font-semibold text-slate-600 w-10">
-        {event.time.elapsed}'
+        {event.time.elapsed}{"'"}
       </span>
       <Image
         src={event.team.logo}
