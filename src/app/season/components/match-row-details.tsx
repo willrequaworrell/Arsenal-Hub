@@ -1,4 +1,3 @@
-// app/(season)/components/match-details.tsx
 "use client"
 
 import { Fixture } from "@/lib/api-football/schemas/fixtures"
@@ -13,8 +12,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { FixtureEvents, Event } from "@/lib/api-football/schemas/fixture-events"
-import { getTeamAbbreviation, getTeamColor, adjustColorForVisibility, getContrastingTeamColors } from "@/lib/api-football/team-data"
+import { getTeamAbbreviation, getContrastingTeamColors } from "@/lib/api-football/team-data"
 import { X } from "lucide-react"
+import MatchEvent from "./match-row-details-event"
 
 type MatchDetailsProps = {
   fixture: Fixture
@@ -24,6 +24,16 @@ type MatchDetailsProps = {
   onClose: () => void
 }
 
+// Stat configuration for easy modification
+const STATS_CONFIG = [
+  { key: 'expected_goals', label: 'Expected Goals (xG)' },
+  { key: 'Total Shots', label: 'Shot Attempts' },
+  { key: 'Shots on Goal', label: 'Shots on Target' },
+  { key: 'Total passes', label: 'Total Passes' },
+  { key: 'Passes %', label: 'Pass Accuracy' },
+  { key: 'Corner Kicks', label: 'Corner Kicks' },
+]
+
 export default function MatchDetails({
   fixture,
   isHomeTeam,
@@ -31,67 +41,82 @@ export default function MatchDetails({
   events,
   onClose,
 }: MatchDetailsProps) {
-  const { teams, goals, score, fixture: fixtureData } = fixture
+  const { teams } = fixture
   const homeTeam = teams.home
   const awayTeam = teams.away
 
   const yourTeam = isHomeTeam ? homeTeam : awayTeam
   const opponent = isHomeTeam ? awayTeam : homeTeam
-  const yourScore = isHomeTeam ? goals.home : goals.away
-  const opponentScore = isHomeTeam ? goals.away : goals.home
 
-  // Get team colors
-  const { yourColor: yourTeamColor, opponentColor: opponentTeamColor } =
-    getContrastingTeamColors(yourTeam.id, opponent.id)
-
-  // Parse statistics data
   const homeStats = statistics?.find(s => s.team.id === homeTeam.id)
   const awayStats = statistics?.find(s => s.team.id === awayTeam.id)
 
-  const getStat = (type: string) => {
-    const homeStat = homeStats?.statistics.find(s => s.type === type)?.value ?? 0
-    const awayStat = awayStats?.statistics.find(s => s.type === type)?.value ?? 0
-    return { home: homeStat, away: awayStat }
+  // Get team colors with contrast adjustment
+  const { 
+    yourColor: yourTeamColor, 
+    opponentColor: opponentTeamColor 
+  } = getContrastingTeamColors(yourTeam.id, opponent.id)
+
+
+  /**
+   * Unified function to get and parse stats for your team vs opponent
+   * Returns both raw values and parsed numbers in one go
+   */
+  const getMatchStat = (type: string) => {
+    // Get raw values from API
+    const homeValue = homeStats?.statistics.find(s => s.type === type)?.value ?? 0
+    const awayValue = awayStats?.statistics.find(s => s.type === type)?.value ?? 0
+    
+    // Determine which value belongs to your team vs opponent
+    const yourValue = isHomeTeam ? homeValue : awayValue
+    const opponentValue = isHomeTeam ? awayValue : homeValue
+    
+    // Parse to numbers
+    const parseValue = (value: string | number | null): number => {
+      if (value === null || value === undefined) return 0
+      if (typeof value === 'string') {
+        return parseFloat(value.replace('%', ''))
+      }
+      return Number(value)
+    }
+    
+    return {
+      yourValue,
+      opponentValue,
+      yourNum: parseValue(yourValue),
+      opponentNum: parseValue(opponentValue),
+    }
   }
 
-  // Get possession percentages
-  const { home: homePossession, away: awayPossession } = getStat('Ball Possession')
-  const yourPossession = isHomeTeam ? homePossession : awayPossession
-  const opponentPossession = isHomeTeam ? awayPossession : homePossession
-
-  // Parse possession values
-  const yourPossessionNum = typeof yourPossession === 'string'
-    ? parseInt(yourPossession)
-    : Number(yourPossession)
-  const opponentPossessionNum = typeof opponentPossession === 'string'
-    ? parseInt(opponentPossession)
-    : Number(opponentPossession)
+  // Get possession data using unified function
+  const possession = getMatchStat('Ball Possession')
 
   // Chart data with team colors
   const chartData = [
-    { team: opponent.name, possession: opponentPossessionNum, fill: opponentTeamColor },
-    { team: yourTeam.name, possession: yourPossessionNum, fill: yourTeamColor },
+    { team: opponent.name, possession: possession.opponentNum, fill: opponentTeamColor },
+    { team: yourTeam.name, possession: possession.yourNum, fill: yourTeamColor },
   ]
 
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     possession: {
       label: "Possession",
     },
-  } satisfies ChartConfig
+  } 
 
   // Filter and sort all match events
   const matchEvents = events?.filter(e =>
     e.type === "Goal" || e.type === "Card" || e.type === "subst"
   ).sort((a, b) => a.time.elapsed - b.time.elapsed) ?? []
 
-  // Key stats to display
-  const statsToShow = [
-    { key: 'Shots on Goal', label: 'Shots on Goal' },
-    { key: 'Total Shots', label: 'Shot Attempts' },
-    { key: 'Yellow Cards', label: 'Yellow Cards' },
-    { key: 'Corner Kicks', label: 'Corner Kicks' },
-    { key: 'Goalkeeper Saves', label: 'Saves' },
-  ]
+  // Format display value (keep % sign if original had it)
+  const formatValue = (value: string | number | null, statKey: string): string => {
+    if (value === null || value === undefined) return '0'
+    if (typeof value === 'string' && value.includes('%')) return value
+    if (typeof value === 'number' && statKey === 'expected_goals') {
+      return value.toFixed(2) // Format xG to 2 decimals
+    }
+    return String(value)
+  }
 
   return (
     <div className="border-t bg-white p-6 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -122,7 +147,7 @@ export default function MatchDetails({
               </div>
             </div>
 
-            {/* Hide Button with separate background */}
+            {/* Close Button */}
             <button
               onClick={onClose}
               className="flex items-center gap-2 px-4 py-3 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
@@ -194,8 +219,8 @@ export default function MatchDetails({
                       </div>
 
                       <div className="flex items-center gap-6 text-lg font-bold text-slate-900">
-                        <span>{yourPossessionNum}%</span>
-                        <span>{opponentPossessionNum}%</span>
+                        <span>{possession.yourNum}%</span>
+                        <span>{possession.opponentNum}%</span>
                       </div>
                     </div>
                   ) : (
@@ -218,7 +243,7 @@ export default function MatchDetails({
                     </div>
                   ) : (
                     matchEvents.map((event, idx) => (
-                      <MatchEventItem key={idx} event={event} />
+                      <MatchEvent key={idx} event={event} />
                     ))
                   )}
                 </div>
@@ -230,17 +255,8 @@ export default function MatchDetails({
               <div className="flex flex-col">
                 <h3 className="mb-4 text-sm font-semibold text-slate-600">Stats</h3>
                 <div className="rounded-lg bg-slate-50 p-4 space-y-3">
-                  {statsToShow.map((stat) => {
-                    const { home, away } = getStat(stat.key)
-                    const yourValue = isHomeTeam ? home : away
-                    const opponentValue = isHomeTeam ? away : home
-
-                    const yourNum = typeof yourValue === 'string' && yourValue.includes('%')
-                      ? parseInt(yourValue)
-                      : Number(yourValue)
-                    const opponentNum = typeof opponentValue === 'string' && opponentValue.includes('%')
-                      ? parseInt(opponentValue)
-                      : Number(opponentValue)
+                  {STATS_CONFIG.map((stat) => {
+                    const { yourValue, opponentValue, yourNum, opponentNum } = getMatchStat(stat.key)
 
                     const total = yourNum + opponentNum
                     const yourPercentage = total > 0 ? (yourNum / total) * 100 : 50
@@ -248,11 +264,15 @@ export default function MatchDetails({
                     return (
                       <div key={stat.key}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-sm w-12 text-left">{yourValue}</span>
+                          <span className="font-bold text-sm w-16 text-left">
+                            {formatValue(yourValue, stat.key)}
+                          </span>
                           <span className="flex-1 text-center text-xs font-medium text-slate-600">
                             {stat.label}
                           </span>
-                          <span className="font-bold text-sm w-12 text-right">{opponentValue}</span>
+                          <span className="font-bold text-sm w-16 text-right">
+                            {formatValue(opponentValue, stat.key)}
+                          </span>
                         </div>
                         <div className="flex h-1.5 overflow-hidden rounded-full bg-slate-200">
                           <div
@@ -282,74 +302,3 @@ export default function MatchDetails({
   )
 }
 
-// Match Event Item Component
-function MatchEventItem({ event }: { event: Event }) {
-  const getEventIcon = () => {
-    switch (event.type) {
-      case "Goal":
-        return "⚽"
-      case "Card":
-        return event.detail === "Yellow Card" ? "🟨" : "🟥"
-      case "subst":
-        return "🔄"
-      default:
-        return "•"
-    }
-  }
-
-  const getEventDescription = () => {
-    switch (event.type) {
-      case "Goal":
-        return (
-          <div className="flex-1">
-            <p className="font-semibold text-slate-900">{event.player.name}</p>
-            {event.assist.name && (
-              <p className="text-xs text-slate-500">
-                Assist: {event.assist.name}
-              </p>
-            )}
-            {event.detail !== "Normal Goal" && (
-              <p className="text-xs text-slate-500 italic">{event.detail}</p>
-            )}
-          </div>
-        )
-      case "Card":
-        return (
-          <div className="flex-1">
-            <p className="font-semibold text-slate-900">{event.player.name}</p>
-            <p className="text-xs text-slate-500">{event.detail}</p>
-          </div>
-        )
-      case "subst":
-        return (
-          <div className="flex-1">
-            <p className="text-sm text-slate-900">
-              <span className="text-green-600">▲</span> {event.player.name}
-            </p>
-            <p className="text-sm text-slate-500">
-              <span className="text-red-600">▼</span> {event.assist.name}
-            </p>
-          </div>
-        )
-      default:
-        return null
-    }
-  }
-
-  return (
-    <div className="flex items-center gap-3 text-sm bg-white rounded p-2">
-      <span className="font-mono text-xs font-semibold text-slate-600 w-10">
-        {event.time.elapsed}{"'"}
-      </span>
-      <Image
-        src={event.team.logo}
-        alt={event.team.name}
-        width={20}
-        height={20}
-        className="size-5"
-      />
-      {getEventDescription()}
-      <span className="text-lg">{getEventIcon()}</span>
-    </div>
-  )
-}

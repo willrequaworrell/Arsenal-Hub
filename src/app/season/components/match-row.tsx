@@ -1,21 +1,19 @@
-// app/(season)/components/match-row.tsx
 'use client'
 
 import Image from "next/image"
 import { useQuery } from "@tanstack/react-query"
 import { TableRow, TableCell } from '@/components/ui/table'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Fixture } from "@/lib/api-football/schemas/fixtures"
 import { getTeamConfig } from "@/lib/config/team"
 import { getFixtureStatistics } from "@/lib/data/fixture-statistics"
 import { getFixtureEvents } from "@/lib/data/fixture-events"
 import missingLogo from "../../../../public/missingLogo.png"
 import { cn } from "@/lib/utils"
-import MatchDetails from "./match-details"
+import MatchDetails from "./match-row-details"
 import { getTeamAbbreviation } from "@/lib/api-football/team-data"
 import MatchRowBadge from "./match-row-badge"
 import DataUnavailable from "@/components/ui/custom/data-unavailable"
-import MatchDetailsSkeleton from "./match-details-skeleton"
+import MatchDetailsSkeleton from "./match-row-details-skeleton"
 
 type MatchRowProps = {
   fixture: Fixture
@@ -30,7 +28,6 @@ const RESULT_COLOR_VARIANTS = {
 } 
 
 export default function MatchRow({ fixture, isExpanded, onToggleExpand }: MatchRowProps) {
-  // Get configured team name
   const teamId = process.env.NEXT_PUBLIC_TEAM_ID || "42"
   const teamObj = getTeamConfig(teamId)
   
