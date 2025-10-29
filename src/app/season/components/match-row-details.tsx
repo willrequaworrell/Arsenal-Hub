@@ -15,6 +15,7 @@ import { FixtureEvents, Event } from "@/lib/api-football/schemas/fixture-events"
 import { getTeamAbbreviation, getContrastingTeamColors } from "@/lib/api-football/team-data"
 import { X } from "lucide-react"
 import MatchEvent from "./match-row-details-event"
+import MatchPossessionChart from "./match-row-details-possession"
 
 type MatchDetailsProps = {
   fixture: Fixture
@@ -89,13 +90,10 @@ export default function MatchDetails({
   }
 
   // Get possession data using unified function
-  const possession = getMatchStat('Ball Possession')
+  const possessionData = getMatchStat('Ball Possession')
 
   // Chart data with team colors
-  const chartData = [
-    { team: opponent.name, possession: possession.opponentNum, fill: opponentTeamColor },
-    { team: yourTeam.name, possession: possession.yourNum, fill: yourTeamColor },
-  ]
+  
 
   const chartConfig: ChartConfig = {
     possession: {
@@ -113,7 +111,7 @@ export default function MatchDetails({
     if (value === null || value === undefined) return '0'
     if (typeof value === 'string' && value.includes('%')) return value
     if (typeof value === 'number' && statKey === 'expected_goals') {
-      return value.toFixed(2) // Format xG to 2 decimals
+      return value.toFixed(2) 
     }
     return String(value)
   }
@@ -168,68 +166,14 @@ export default function MatchDetails({
             {/* Top Section: Possession Chart + Match Events Timeline */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Possession Donut Chart */}
-              <div className="flex flex-col">
-                <h3 className="mb-4 text-sm font-semibold text-slate-600">Possession</h3>
-                <div className="rounded-lg bg-slate-50 p-4 flex flex-col items-center justify-center h-[300px]">
-                  {statistics ? (
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="relative">
-                        <ChartContainer
-                          config={chartConfig}
-                          className="mx-auto aspect-square h-[200px]"
-                        >
-                          <PieChart>
-                            <ChartTooltip
-                              cursor={false}
-                              content={<ChartTooltipContent hideLabel />}
-                            />
-                            <Pie
-                              data={chartData}
-                              dataKey="possession"
-                              nameKey="team"
-                              innerRadius={60}
-                              outerRadius={80}
-                              strokeWidth={2}
-                              startAngle={90}
-                              endAngle={-270}
-                            />
-                          </PieChart>
-                        </ChartContainer>
-
-                        {/* Center logos overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={yourTeam.logo || missingLogo}
-                              alt={yourTeam.name}
-                              width={28}
-                              height={28}
-                              className="size-7"
-                            />
-                            <div className="h-8 w-px bg-slate-300" />
-                            <Image
-                              src={opponent.logo || missingLogo}
-                              alt={opponent.name}
-                              width={28}
-                              height={28}
-                              className="size-7"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-6 text-lg font-bold text-slate-900">
-                        <span>{possession.yourNum}%</span>
-                        <span>{possession.opponentNum}%</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 text-center">
-                      Statistics unavailable
-                    </p>
-                  )}
-                </div>
-              </div>
+              <MatchPossessionChart
+                yourTeam={yourTeam}
+                opponent={opponent}
+                statistics={statistics}
+                possessionData={possessionData}
+                yourTeamColor={yourTeamColor}
+                opponentTeamColor={opponentTeamColor}
+              />
 
               {/* Match Events Timeline */}
               <div className="flex flex-col">
