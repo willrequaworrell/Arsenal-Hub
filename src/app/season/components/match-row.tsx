@@ -179,7 +179,7 @@ export default function MatchRow({ fixture, isExpanded, onToggleExpand }: MatchR
             {isLoading ? (
               <MatchDetailsSkeleton/>
             ) : hasError ? (
-              <div className="p-8 bg-slate-500">
+              <div className="p-8 bg-slate-50">
                 <DataUnavailable message="⚠️ Failed to fetch match details. Close and re-open to try again." />
               </div>
             ) : (
