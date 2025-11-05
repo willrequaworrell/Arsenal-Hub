@@ -75,8 +75,8 @@ const MatchDetails = ({fixture, isHomeTeam, statistics, events, onClose}: MatchD
 
   return (
     <div className=" bg-white p-6 animate-in fade-in slide-in-from-top-2 duration-200">
-      <div className="mx-auto max-w-5xl">
 
+      <div className="mx-auto max-w-5xl">
         {/* Header with Legend and Close Button */}
         <div className="flex items-center justify-between mb-6">
           {/* Legend with team colors */}
@@ -89,11 +89,11 @@ const MatchDetails = ({fixture, isHomeTeam, statistics, events, onClose}: MatchD
 
           {/* Close Button */}
           <button
+            className="group flex items-center gap-2 px-4 py-3 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
             onClick={onClose}
-            className="flex items-center gap-2 px-4 py-3 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
             aria-label="Hide match details"
           >
-            Close X
+            Close <span className="group-hover:text-red-400 transition-opacity">✕</span>
           </button>
         </div>
 
@@ -112,7 +112,6 @@ const MatchDetails = ({fixture, isHomeTeam, statistics, events, onClose}: MatchD
 
             {/* Match Events Timeline */}
             <MatchEvents events={matchEvents} />
-            
           </div>
 
           <MatchH2H
