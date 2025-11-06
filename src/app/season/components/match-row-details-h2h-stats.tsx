@@ -1,12 +1,12 @@
+import { FixtureTeamStatistics } from "@/lib/api-football/schemas/statistics"
+import { getMatchStat } from "../util/helpers"
+
 type MatchH2HProps = {
-  getMatchStat: (type: string) => {
-    yourValue: string | number;
-    opponentValue: string | number;
-    yourNum: number;
-    opponentNum: number;
-  }
   yourTeamColor: string
   opponentTeamColor: string
+  isHomeTeam: boolean
+  homeStats?: FixtureTeamStatistics
+  awayStats?: FixtureTeamStatistics
 }
 
 // Stat configuration for easy modification
@@ -19,24 +19,24 @@ const STATS_CONFIG = [
   { key: 'Corner Kicks', label: 'Corner Kicks' },
 ]
 
-  // Format display value
-  const formatValue = (value: string | number | null, statKey: string): string => {
-    if (value === null || value === undefined) return '0'
-    if (typeof value === 'string' && value.includes('%')) return value
-    if (typeof value === 'number' && statKey === 'expected_goals') {
-      return value.toFixed(2) 
-    }
-    return String(value)
+// Format display value
+const formatValue = (value: string | number | null, statKey: string): string => {
+  if (value === null || value === undefined) return '0'
+  if (typeof value === 'string' && value.includes('%')) return value
+  if (typeof value === 'number' && statKey === 'expected_goals') {
+    return value.toFixed(2)
   }
+  return String(value)
+}
 
 
-const MatchH2H = ({ getMatchStat, yourTeamColor, opponentTeamColor }: MatchH2HProps) => {
+const MatchH2H = ({ yourTeamColor, opponentTeamColor, isHomeTeam, homeStats, awayStats }: MatchH2HProps) => {
   return (
     <div className="flex flex-col">
       <h3 className="mb-4 text-sm font-semibold text-slate-600">Stats</h3>
       <div className="rounded-lg bg-slate-50 p-4 space-y-3">
         {STATS_CONFIG.map((stat) => {
-          const { yourValue, opponentValue, yourNum, opponentNum } = getMatchStat(stat.key)
+          const { yourValue, opponentValue, yourNum, opponentNum } = getMatchStat(stat.key, isHomeTeam, homeStats, awayStats)
 
           const total = yourNum + opponentNum
           const yourPercentage = total > 0 ? (yourNum / total) * 100 : 50

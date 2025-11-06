@@ -9,6 +9,7 @@ import DataUnavailable from "@/components/ui/custom/data-unavailable"
 import MatchEvents from "./match-row-details-events"
 import MatchH2H from "./match-row-details-h2h-stats"
 import MatchRowDetailsLegend from "./match-row-details-legend"
+import { getMatchStat } from "../util/helpers"
 
 type MatchDetailsProps = {
   fixture: Fixture
@@ -33,40 +34,16 @@ const MatchDetails = ({fixture, isHomeTeam, statistics, events, onClose}: MatchD
   const homeTeam = teams.home
   const awayTeam = teams.away
   const yourTeam = isHomeTeam ? homeTeam : awayTeam
-  const opponent = isHomeTeam ? awayTeam : homeTeam
+  const opponentTeam = isHomeTeam ? awayTeam : homeTeam
   const homeStats = statistics.find(s => s.team.id === homeTeam.id)
   const awayStats = statistics.find(s => s.team.id === awayTeam.id)
 
   // Get team colors with contrast adjustment
-  const { yourColor: yourTeamColor, opponentColor: opponentTeamColor } = getContrastingTeamColors(yourTeam.id, opponent.id)
+  const { yourColor: yourTeamColor, opponentColor: opponentTeamColor } = getContrastingTeamColors(yourTeam.id, opponentTeam.id)
 
-  /*
-   * Unified function to get and parse stats for your team vs opponent
-   */
-  const getMatchStat = (type: string) => {
-    const homeValue = homeStats?.statistics.find(s => s.type === type)?.value ?? 0
-    const awayValue = awayStats?.statistics.find(s => s.type === type)?.value ?? 0
-    const yourValue = isHomeTeam ? homeValue : awayValue
-    const opponentValue = isHomeTeam ? awayValue : homeValue
-    
-    const parseValue = (value: string | number | null): number => {
-      if (value === null || value === undefined) return 0
-      if (typeof value === 'string') {
-        return parseFloat(value.replace('%', ''))
-      }
-      return Number(value)
-    }
-    
-    return {
-      yourValue,
-      opponentValue,
-      yourNum: parseValue(yourValue),
-      opponentNum: parseValue(opponentValue),
-    }
-  }
 
   // Get possession data
-  const possessionData = getMatchStat('Ball Possession')
+  const possessionData = getMatchStat('Ball Possession', isHomeTeam, homeStats, awayStats)
 
   // Filter and sort match events
   const matchEvents = events
@@ -83,7 +60,7 @@ const MatchDetails = ({fixture, isHomeTeam, statistics, events, onClose}: MatchD
           <MatchRowDetailsLegend 
             yourTeamId={yourTeam.id}
             yourTeamColor={yourTeamColor}
-            opponentId={opponent.id}
+            opponentId={opponentTeam.id}
             opponentTeamColor={opponentTeamColor}
           />
 
@@ -103,7 +80,7 @@ const MatchDetails = ({fixture, isHomeTeam, statistics, events, onClose}: MatchD
             {/* Possession Donut Chart */}
             <MatchPossessionChart
               yourTeam={yourTeam}
-              opponent={opponent}
+              opponentTeam={opponentTeam}
               statistics={statistics}
               possessionData={possessionData}
               yourTeamColor={yourTeamColor}
@@ -115,9 +92,11 @@ const MatchDetails = ({fixture, isHomeTeam, statistics, events, onClose}: MatchD
           </div>
 
           <MatchH2H
-            getMatchStat={getMatchStat}
             yourTeamColor={yourTeamColor}
             opponentTeamColor={opponentTeamColor}
+            isHomeTeam={isHomeTeam}
+            homeStats={homeStats}
+            awayStats={awayStats}
           />
         </div>
 

@@ -11,7 +11,7 @@ type MatchPossessionChartProps = {
     logo?: string | null | undefined;
     winner?: boolean | null | undefined;
   }
-  opponent: {
+  opponentTeam: {
     id: number;
     name: string;
     logo?: string | null | undefined;
@@ -35,10 +35,10 @@ const chartConfig: ChartConfig = {
 }
 
 
-const MatchPossessionChart = ({ yourTeam, opponent, statistics, possessionData, yourTeamColor, opponentTeamColor }: MatchPossessionChartProps) => {
+const MatchPossessionChart = ({ yourTeam, opponentTeam, statistics, possessionData, yourTeamColor, opponentTeamColor }: MatchPossessionChartProps) => {
 
   const chartData = [
-    { team: opponent.name, possession: possessionData.opponentNum, fill: opponentTeamColor },
+    { team: opponentTeam.name, possession: possessionData.opponentNum, fill: opponentTeamColor },
     { team: yourTeam.name, possession: possessionData.yourNum, fill: yourTeamColor },
   ]
 
@@ -83,8 +83,8 @@ const MatchPossessionChart = ({ yourTeam, opponent, statistics, possessionData, 
                   />
                   <div className="h-8 w-px bg-slate-300" />
                   <Image
-                    src={opponent.logo || missingLogo}
-                    alt={opponent.name}
+                    src={opponentTeam.logo || missingLogo}
+                    alt={opponentTeam.name}
                     width={28}
                     height={28}
                     className="size-7"

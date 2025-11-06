@@ -5,7 +5,7 @@ export const StatisticSchema = z.object({
   value: z.union([z.number(), z.string(), z.null()]),
 })
 
-export const TeamStatisticsSchema = z.object({
+export const FixtureTeamStatisticsSchema = z.object({
   team: z.object({
     id: z.number(),
     name: z.string(),
@@ -14,7 +14,7 @@ export const TeamStatisticsSchema = z.object({
   statistics: z.array(StatisticSchema),
 })
 
-export const FixtureStatisticsSchema = z.array(TeamStatisticsSchema)
+export const FixtureStatisticsSchema = z.array(FixtureTeamStatisticsSchema)
 
+export type FixtureTeamStatistics = z.infer<typeof FixtureTeamStatisticsSchema>
 export type FixtureStatistics = z.infer<typeof FixtureStatisticsSchema>
-export type TeamStatistics = z.infer<typeof TeamStatisticsSchema>
