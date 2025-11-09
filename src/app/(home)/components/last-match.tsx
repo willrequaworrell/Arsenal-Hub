@@ -7,12 +7,13 @@ import missingLogo from "../../../../public/missingLogo.png"
 import { getFixtures } from "@/lib/data/fixtures"
 import DataUnavailable from "@/components/ui/custom/data-unavailable"
 import { getTeamAbbreviation } from "@/lib/api-football/team-data"
+import { DEFAULT_TEAM_ID } from "@/lib/config/api-football"
 
 type FixtureTeam = z.infer<typeof FixtureTeamSchema>
 type Goals = z.infer<typeof GoalsSchema>
 
 const LastMatch = async () => {
-  const { data: fixtures, success } = await getFixtures()
+  const { data: fixtures, success } = await getFixtures(DEFAULT_TEAM_ID)
   
   if (!success || !fixtures || fixtures.length < 2) {
     return (

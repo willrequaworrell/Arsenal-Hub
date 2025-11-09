@@ -8,6 +8,7 @@ import missingLogo from "../../../../public/missingLogo.png"
 import { formatDate } from "../util/date-formatter";
 import { getFixtures } from "@/lib/data/fixtures";
 import DataUnavailable from "@/components/ui/custom/data-unavailable";
+import { DEFAULT_TEAM_ID } from "@/lib/config/api-football";
 
 
 type FixtureTeam = z.infer<typeof FixtureTeamSchema>
@@ -15,7 +16,7 @@ type Venue = z.infer<typeof VenueSchema>
 
 
 const UpcomingMatch = async () => {
-  const {data: fixtures, success} = await getFixtures();
+  const {data: fixtures, success} = await getFixtures(DEFAULT_TEAM_ID);
 
   if (!success || !fixtures || fixtures.length < 1) {
     return (

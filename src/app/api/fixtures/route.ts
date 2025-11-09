@@ -8,14 +8,21 @@ export const revalidate = 60
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const teamId = searchParams.get("teamId") ?? DEFAULT_TEAM_ID
+  const teamId = searchParams.get("teamId")
 
   try {
-    const data = await fetchFromAPIFootball('/fixtures', {
+    // Build params - only add team if provided
+    const params: Record<string, string> = {
       league: API_FOOTBALL.leagueId,
       season: API_FOOTBALL.season,
-      team: teamId
-    })
+    }
+
+    // Add team filter if teamId provided (either from query or default)
+    if (teamId) {
+      params.team = teamId
+    }
+
+    const data = await fetchFromAPIFootball('/fixtures', params)
 
     // Validate API-Football response
     const validation = validateAPIFootballResponse(data)

@@ -1,5 +1,6 @@
-import { Fixture } from "../api-football/schemas/fixtures";
-import { DEFAULT_TEAM_ID } from "../config/api-football";
+// lib/data/fixtures.ts
+import { Fixture } from "../api-football/schemas/fixtures"
+import { DEFAULT_TEAM_ID } from "../config/api-football"
 
 export type FixturesResult = {
   data: Fixture[] | null
@@ -9,17 +10,23 @@ export type FixturesResult = {
 
 const REVALIDATE_SECS = 300
 
-
-export const getFixtures = async (teamId: string = DEFAULT_TEAM_ID): Promise<FixturesResult> => {
+export const getFixtures = async (teamId?: string): Promise<FixturesResult> => {
   const absoluteUrl = new URL('/api/fixtures', process.env.NEXT_PUBLIC_BASE_URL)
-  absoluteUrl.searchParams.set('teamId', teamId)
+  
+  // Only add teamId param if provided
+  if (teamId) {
+    absoluteUrl.searchParams.set('teamId', teamId)
+  }
 
+  const cacheTag = teamId 
+    ? `fixtures-${teamId}` 
+    : 'fixtures-all-league'
 
   try {
     const res = await fetch(absoluteUrl, {
       next: {
         revalidate: REVALIDATE_SECS,
-        tags: [`fixtures-${teamId}`]
+        tags: [cacheTag]
       },
     });
 
@@ -37,6 +44,4 @@ export const getFixtures = async (teamId: string = DEFAULT_TEAM_ID): Promise<Fix
   } catch {
     return { data: null, success: false, message: "network/timeout" }
   }
-
-
 }
