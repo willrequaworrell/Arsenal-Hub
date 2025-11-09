@@ -1,4 +1,3 @@
-// app/(season)/components/league-position-chart.tsx
 "use client"
 
 import { useMemo } from "react"
@@ -37,13 +36,11 @@ export default function LeaguePositionChart({ fixtures, teamId }: LeaguePosition
     )
   }
 
-  // Y-axis ticks: 1, 3, 5, 7, 9, 11, 13, 15, 17, 19
   const yTicks = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
   
-  // X-axis ticks: every other matchweek starting from 1
   const xTicks = positionData
     .map(d => d.matchweek)
-    .filter(mw => mw % 2 === 1)  // Odd matchweeks: 1, 3, 5, 7...
+    .filter(mw => mw % 2 === 1)  
 
   return (
     <div className="h-64 w-full">
