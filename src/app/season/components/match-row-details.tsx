@@ -9,7 +9,7 @@ import DataUnavailable from "@/components/ui/custom/data-unavailable"
 import MatchEvents from "./match-row-details-events"
 import MatchH2H from "./match-row-details-h2h-stats"
 import MatchRowDetailsLegend from "./match-row-details-legend"
-import { getMatchStat } from "../util/helpers"
+import { getMatchStat } from "../util/get-match-stat"
 
 type MatchDetailsProps = {
   fixture: Fixture

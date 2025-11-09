@@ -1,5 +1,5 @@
 import { FixtureTeamStatistics } from "@/lib/api-football/schemas/statistics"
-import { getMatchStat } from "../util/helpers"
+import { getMatchStat } from "../util/get-match-stat"
 
 type MatchH2HProps = {
   yourTeamColor: string

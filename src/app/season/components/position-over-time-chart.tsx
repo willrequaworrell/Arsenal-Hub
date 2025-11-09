@@ -30,7 +30,7 @@ export default function LeaguePositionChart({ fixtures, teamId }: LeaguePosition
 
   if (positionData.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center p-4 text-slate-400">
+      <div className="flex h-64 items-center justify-center p-4 text-slate-400 rounded-lg bg-white">
         <p className="text-sm">No position data available</p>
       </div>
     )
@@ -40,10 +40,10 @@ export default function LeaguePositionChart({ fixtures, teamId }: LeaguePosition
   
   const xTicks = positionData
     .map(d => d.matchweek)
-    .filter(mw => mw % 2 === 1)  
+    .filter(mw => mw % 2 === 1)
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-64 w-full rounded-lg bg-slate-50 p-4">
       <ChartContainer config={chartConfig} className="h-full w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={positionData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>

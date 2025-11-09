@@ -2,6 +2,8 @@
 import CardContainer from "@/components/ui/custom/card-container"
 import { Fixture } from "@/lib/api-football/schemas/fixtures"
 import LeaguePositionChart from "./position-over-time-chart"
+import HomeAwayRadar from "./home-away-radar"
+import { DEFAULT_TEAM_ID } from "@/lib/config/api-football"
 
 type StatsProps = {
   fixtures: Fixture[]
@@ -83,20 +85,12 @@ export default function Stats({ fixtures }: StatsProps) {
 
       {/* Form Chart Placeholder */}
       <CardContainer title="League Position Over Time">
-        <LeaguePositionChart fixtures={fixtures} teamId={42} />
+        <LeaguePositionChart fixtures={fixtures} teamId={Number(DEFAULT_TEAM_ID)} />
       </CardContainer>
 
       {/* Home/Away Performance Placeholder */}
       <CardContainer title="Home vs Away Performance">
-        <div className="flex h-48 items-center justify-center p-4 text-slate-400">
-          <div className="text-center">
-            <svg className="mx-auto mb-2 h-16 w-16 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-            </svg>
-            <p className="text-sm">Performance breakdown coming soon</p>
-          </div>
-        </div>
+        <HomeAwayRadar fixtures={fixtures} teamId={Number(DEFAULT_TEAM_ID)} />
       </CardContainer>
     </div>
   )
