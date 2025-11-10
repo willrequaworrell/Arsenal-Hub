@@ -35,7 +35,7 @@ export default function SeasonSummary({
       {/* Results Section */}
       <div>
         <div className="flex items-center justify-between mb-2 px-1">
-          <h3 className="text-sm font-semibold text-slate-500">Season Record</h3>
+          <h3 className="text-sm font-semibold text-slate-500">Record</h3>
           <div className="flex items-center gap-3 text-xs text-slate-500">
             <span className="font-medium">{points} pts</span>
             <span className="text-slate-400">•</span>
@@ -44,7 +44,7 @@ export default function SeasonSummary({
         </div>
 
         <div className="rounded-lg bg-slate-50 p-4">
-          <div className="flex h-12 w-full rounded-lg overflow-hidden">
+          <div className="flex w-full rounded-lg overflow-hidden">
             <div 
               className="bg-green-600 flex items-center justify-center text-white font-semibold text-sm transition-all hover:brightness-110"
               style={{ width: `${winPercent}%` }}
@@ -77,7 +77,7 @@ export default function SeasonSummary({
       {/* Goals Section */}
       <div>
         <div className="flex items-center justify-between mb-2 px-1">
-          <h3 className="text-sm font-semibold text-slate-500">Goals</h3>
+          <h3 className="text-sm font-semibold text-slate-500">Goal Difference</h3>
           <div className={`text-sm font-semibold ${
             goalDifference >= 0 ? 'text-green-600' : 'text-red-600'
           }`}>
@@ -86,7 +86,7 @@ export default function SeasonSummary({
         </div>
 
         <div className="rounded-lg bg-slate-50 p-4">
-          <div className="flex h-12 w-full rounded-lg overflow-hidden">
+          <div className="flex w-full rounded-lg overflow-hidden">
             <div 
               className="bg-green-600 flex items-center justify-center text-white font-semibold text-sm transition-all hover:brightness-110"
               style={{ width: `${gfPercent}%` }}
