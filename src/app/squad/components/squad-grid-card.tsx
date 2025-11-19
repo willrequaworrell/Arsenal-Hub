@@ -1,8 +1,10 @@
+// app/squad/components/squad-grid-card.tsx
 "use client"
 
 import Image from "next/image"
 import { ChevronDown } from "lucide-react"
 import { PlayerStatistics } from "@/lib/api-football/schemas/players"
+import { getFlagUrlForNationality } from "@/lib/api-football/nationality-flags"
 
 type PlayerCardProps = {
   player: PlayerStatistics
@@ -10,70 +12,69 @@ type PlayerCardProps = {
   onClick: () => void
 }
 
-// app/squad/components/player-card.tsx
 export default function PlayerCard({ player, isExpanded, onClick }: PlayerCardProps) {
-  const plStats = player.statistics.find(s => s.league.id === 39)
-  const position = plStats?.games?.position || "Unknown"
+  const nationality = player.player.nationality || ""
+  const flagUrl = getFlagUrlForNationality(nationality)
 
   return (
     <div
       onClick={onClick}
       className={`
-        relative cursor-pointer rounded-lg border bg-white p-8 transition-all
+        relative cursor-pointer rounded-lg border bg-white transition-all
         hover:shadow-lg hover:scale-[1.02]
-        ${isExpanded ? 'ring-2 ring-red-500 shadow-lg' : 'hover:border-slate-300'}
+        ${isExpanded ? "ring-4 ring-red-500 shadow-lg" : "hover:border-slate-300"}
       `}
     >
-      {/* Player Photo */}
-      <div className="relative aspect-square w-full mb-3 bg-slate-100 rounded-lg overflow-hidden">
+      {/* Top: Player photo */}
+      <div className="relative aspect-square w-full overflow-hidden rounded-t-lg bg-slate-50 ">
         <Image
           src={player.player.photo}
           alt={player.player.name}
           fill
-          className="object-cover"
+          className="object-cover rounded-full p-8"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
         />
-      </div>
 
-      {/* Player Info */}
-      <div className="space-y-1">
-        <div>
-          <h3 className="font-bold text-lg text-slate-900 truncate">
-            {player.player.name}
-          </h3>
-          <p className="text-sm text-slate-500">{position}</p>
-        </div>
-
-        {/* Expand Indicator */}
-        <div className="flex justify-end">
-          <ChevronDown 
-            className={`h-4 w-4 text-slate-400 transition-transform ${
-              isExpanded ? 'rotate-180' : ''
+        {/* Expand chevron in photo corner */}
+        <div className="pointer-events-none absolute right-3 top-3 rounded-full bg-black/50 p-1">
+          <ChevronDown
+            className={`h-4 w-4 text-white transition-transform ${
+              isExpanded ? "rotate-180" : ""
             }`}
           />
         </div>
+      </div>
 
-        {/* Quick Stats */}
-        <div className="flex justify-between pt-2 border-t text-xs text-slate-600">
-          <div className="text-center">
-            <p className="font-semibold text-slate-900">
-              {plStats?.games?.appearences || 0}
+      {/* Bottom: info band with name + flag */}
+      <div className="flex items-center justify-between gap-3 rounded-b-lg bg-white border-t-4 border-red-500 px-4 py-3">
+        {/* Name block */}
+        <div className="min-w-0">
+          {player.player.firstname && (
+            <p className="truncate text-xs font-semibold uppercase tracking-wide text-slate-400">
+              {player.player.firstname}
             </p>
-            <p className="text-slate-500">Apps</p>
-          </div>
-          <div className="text-center">
-            <p className="font-semibold text-slate-900">
-              {plStats?.goals?.total || 0}
-            </p>
-            <p className="text-slate-500">Goals</p>
-          </div>
-          <div className="text-center">
-            <p className="font-semibold text-slate-900">
-              {plStats?.goals?.assists || 0}
-            </p>
-            <p className="text-slate-500">Assists</p>
-          </div>
+          )}
+          <p className="truncate text-lg font-bold text-slate-900">
+            {player.player.lastname || player.player.name}
+          </p>
         </div>
+
+        {/* Nationality + flag block */}
+        {nationality && (
+          <div className="flex items-center gap-2">
+            {flagUrl && (
+              <div className=" border border-slate-200 bg-slate-100">
+                <Image
+                  src={flagUrl}
+                  alt={nationality}
+                  width={24}
+                  height={16}
+                  className="object-center"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
