@@ -22,7 +22,7 @@ export default function MatchList({ fixtures }: MatchListProps) {
 
   if (!fixtures.length) {
     return (
-      <CardContainer title={seasonTitle}>
+      <CardContainer title={seasonTitle} className="p-6">
         <div className="flex h-64 items-center justify-center p-4">
           <p className="text-slate-500">No fixtures available</p>
         </div>
@@ -31,7 +31,7 @@ export default function MatchList({ fixtures }: MatchListProps) {
   }
 
   return (
-    <CardContainer title={seasonTitle}>
+    <CardContainer title={seasonTitle} className="p-6">
       <Table>
         <TableBody>
           {fixtures.map((fixture) => (

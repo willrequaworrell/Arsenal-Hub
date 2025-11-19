@@ -10,14 +10,14 @@ const News = async () => {
 
   if (!success || !data || data.length === 0) {
     return (
-      <CardContainer title="News">
+      <CardContainer title="News" className="p-6">
         <DataUnavailable message="News data unavailable" />
       </CardContainer>
     )
   }
     
   return (
-    <CardContainer title="News">
+    <CardContainer title="News" className="p-6">
       <div className="h-full"> 
         <NewsCarousel articles={data} />
       </div>

@@ -20,7 +20,7 @@ const UpcomingMatch = async () => {
 
   if (!success || !fixtures || fixtures.length < 1) {
     return (
-      <CardContainer title="Upcoming Match">
+      <CardContainer title="Upcoming Match" className="p-6">
         <DataUnavailable message="Upcoming match data unavailable" />
       </CardContainer>
     )
@@ -33,7 +33,7 @@ const UpcomingMatch = async () => {
   const date = new Date(upcomingMatch.fixture.date)
 
   return (
-    <CardContainer title="Upcoming Match">
+    <CardContainer title="Upcoming Match" className="p-6">
       <div className="flex flex-col h-full">
         <div className="flex flex-col items-center flex-1 p-1">
           <div className="relative flex justify-between w-full px-8">

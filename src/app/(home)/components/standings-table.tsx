@@ -12,14 +12,14 @@ const StandingsTable = async () => {
 
   if (!success || !standings) {
     return (
-      <CardContainer title="Standings">
+      <CardContainer title="Standings" className="p-6">
         <DataUnavailable message="Standings data is currently unavailable." />
       </CardContainer>
     )
   }
 
   return (
-    <CardContainer title="Standings">
+    <CardContainer title="Standings" className="p-6">
       <Table>
         <TableBody>
           {standings.map((team, i: number) => {

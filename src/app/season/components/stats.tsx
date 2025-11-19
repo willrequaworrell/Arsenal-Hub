@@ -47,7 +47,7 @@ export default function Stats({ teamFixtures, allFixtures }: StatsProps) {
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
       {/* Season Summary - NEW VISUAL */}
-      <CardContainer title="Season Summary">
+      <CardContainer title="Season Summary" className="p-6">
         <SeasonSummary
           played={played}
           wins={wins}
@@ -60,7 +60,7 @@ export default function Stats({ teamFixtures, allFixtures }: StatsProps) {
       </CardContainer>
 
       {/* League Position Over Time */}
-      <CardContainer title="League Position Over Time">
+      <CardContainer title="League Position Over Time" className="p-6">
         <LeaguePositionChart 
           fixtures={allFixtures} 
           teamId={Number(DEFAULT_TEAM_ID)} 
@@ -68,7 +68,7 @@ export default function Stats({ teamFixtures, allFixtures }: StatsProps) {
       </CardContainer>
 
       {/* Home/Away Performance */}
-      <CardContainer title="Home vs Away Performance">
+      <CardContainer title="Home vs Away Performance" className="p-6">
         <HomeAwayRadar 
           fixtures={teamFixtures} 
           teamId={Number(DEFAULT_TEAM_ID)} 
