@@ -55,7 +55,7 @@ export default function SquadGrid({ players }: SquadGridProps) {
               {position}s
             </h2>
             
-            <div className="space-y-4">
+            <div className="space-y-8">
               {rows.map((row, index) => {
                 const isPanelActiveForRow = row.some(
                   p => p.player.id === expandedPlayerId

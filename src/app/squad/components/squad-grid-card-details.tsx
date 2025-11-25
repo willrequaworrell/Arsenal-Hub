@@ -12,7 +12,7 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
   const plStats = player.statistics.find(s => s.league.id === 39)
 
   return (
-    <div className="rounded-lg border-2 border-red-500 bg-white p-6">
+    <div className=" border-4 border-red-500 bg-white p-6">
       {/* Top row: personal info + close */}
       <div className="mb-4 flex items-start justify-between gap-6">
         {/* Personal info (no photo or big name header) */}
