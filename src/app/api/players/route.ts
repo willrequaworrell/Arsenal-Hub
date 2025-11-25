@@ -1,6 +1,6 @@
 // app/api/players/route.ts
 import { fetchFromAPIFootball } from '@/lib/api-football/api-football'
-import { PlayersArraySchema } from '@/lib/api-football/schemas/players'
+import { PlayersArraySchema, type PlayerStatistics } from '@/lib/api-football/schemas/players'
 import { validateAPIFootballResponse } from '@/lib/api-football/validate-response'
 import { API_FOOTBALL, DEFAULT_TEAM_ID } from '@/lib/config/api-football'
 import { NextResponse } from 'next/server'
@@ -51,7 +51,8 @@ export async function GET(request: Request) {
     const remainingResults = await Promise.all(remainingRequests)
     
     // Combine all players
-    let allPlayers = [...firstPagePlayers]
+    // Note: We cast to PlayerStatistics[] temporarily to help TS understand the structure before Zod validation
+    let allPlayers: PlayerStatistics[] = [...firstPagePlayers]
     remainingResults.forEach(result => {
       if (result?.response) {
         allPlayers = [...allPlayers, ...result.response]
@@ -61,9 +62,9 @@ export async function GET(request: Request) {
     // Filter players:
     // 1. Must have Premier League stats (or specified league)
     // 2. Must have played at least 1 game
-    const filteredPlayers = allPlayers.filter(player => {
+    const filteredPlayers = allPlayers.filter((player) => {
       const leagueStats = player.statistics?.find(
-        (s: any) => s.league.id === parseInt(league)
+        (s) => s.league.id === parseInt(league)
       )
       return leagueStats && (leagueStats.games?.appearences ?? 0) > 0
     })
