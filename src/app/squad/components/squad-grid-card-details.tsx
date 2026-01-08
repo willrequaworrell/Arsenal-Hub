@@ -35,11 +35,14 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
   const ratingData = [{ value: rawRating, fill: ratingColor }]
 
   // Standardized Styles
-  const WIDGET_TITLE_STYLE = "text-xs font-semibold uppercase text-slate-500 tracking-wider border-b border-slate-200 pb-4 mb-4 -mx-5 px-5"
-  const HERO_NUMBER_STYLE = "text-3xl font-bold text-slate-900 leading-none"
-  const HERO_LABEL_STYLE = "text-xs text-slate-400 font-medium mt-1 block"
+  const WIDGET_TITLE_STYLE = "text-sm font-semibold uppercase text-slate-500 tracking-wider border-b border-slate-200 pb-4 mb-4 -mx-5 px-5"
+  const HERO_NUMBER_STYLE = "text-2xl font-bold text-slate-900 leading-none"
+  const HERO_LABEL_STYLE = "text-sm text-slate-500 font-medium mt-1 block"
+  
+  // Detailed Stats Styles
+  const DETAIL_LABEL_STYLE = "text-sm text-slate-500 font-medium" 
+  const DETAIL_VALUE_STYLE = "text-base font-bold text-slate-900"
 
-  // Calculations for Accuracy Bars
   const passAccuracy = plStats?.passes?.accuracy
   const totalShots = plStats?.shots?.total ?? 0
   const shotsOnTarget = plStats?.shots?.on ?? 0
@@ -56,161 +59,157 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
         ✕
       </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-2">
+      <div className="flex flex-col gap-6 pt-2">
         
-        {/* Left Column: Profile & Combined Overview */}
-        <div className="lg:col-span-1 space-y-4">
-          
-          {/* 1. Profile Summary Card */}
-          <div className="rounded-xl bg-slate-50 p-5 flex flex-col">
-            <div className={WIDGET_TITLE_STYLE}>Profile</div>
-            <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+        {/* Row 1: Profile (Full Width) */}
+        <div className="rounded-xl bg-slate-50 p-5">
+           <div className={WIDGET_TITLE_STYLE}>Profile</div>
+           {/* Horizontal Grid for Profile Items */}
+           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               <ProfileItem label="Age" value={pInfo.age} numberStyle={HERO_NUMBER_STYLE} labelStyle={HERO_LABEL_STYLE} />
-              <ProfileItem label="Nationality" value={pInfo.nationality} numberStyle="text-2xl font-bold text-slate-900 leading-none truncate" labelStyle={HERO_LABEL_STYLE} />
+              <ProfileItem label="Nationality" value={pInfo.nationality} numberStyle="text-xl font-bold text-slate-900 leading-none truncate" labelStyle={HERO_LABEL_STYLE} />
               <ProfileItem label="Height" value={heightDisplay} numberStyle={HERO_NUMBER_STYLE} labelStyle={HERO_LABEL_STYLE} />
               <ProfileItem label="Weight" value={weightDisplay} numberStyle={HERO_NUMBER_STYLE} labelStyle={HERO_LABEL_STYLE} />
-            </div>
-          </div>
-
-          {/* 2. Season Overview (Combined Widget) */}
-          <div className="rounded-xl bg-slate-50 p-5 flex flex-col">
-            <div className={WIDGET_TITLE_STYLE}>Season Overview</div>
-            
-            <div className="flex flex-col gap-6">
-              
-              {/* Row 1: Playing Time */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className={HERO_NUMBER_STYLE}>{plStats?.games?.appearences ?? 0}</div>
-                  <span className={HERO_LABEL_STYLE}>Appearances</span>
-                </div>
-                <div>
-                  <div className={HERO_NUMBER_STYLE}>{plStats?.games?.minutes ?? 0}</div>
-                  <span className={HERO_LABEL_STYLE}>Minutes Played</span>
-                </div>
-              </div>
-
-              {/* Row 2: Goals & Assists (Outfield) or Saves/Conceded (GK) */}
-              {!isGoalkeeper && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.total ?? 0}</div>
-                    <span className={HERO_LABEL_STYLE}>Goals</span>
-                  </div>
-                  <div>
-                    <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.assists ?? 0}</div>
-                    <span className={HERO_LABEL_STYLE}>Assists</span>
-                  </div>
-                </div>
-              )}
-              {isGoalkeeper && (
-                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.saves ?? 0}</div>
-                    <span className={HERO_LABEL_STYLE}>Saves</span>
-                  </div>
-                   <div>
-                    <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.conceded ?? 0}</div>
-                    <span className={HERO_LABEL_STYLE}>Conceded</span>
-                  </div>
-                 </div>
-              )}
-
-              {/* Row 3: Performance & Discipline */}
-              <div className="grid grid-cols-2 gap-4">
-                
-                <div className="flex flex-col">
-                   <div className="flex items-end gap-3 relative">
-                    <div>
-                      <div className={HERO_NUMBER_STYLE}>
-                        {rawRating > 0 ? rawRating.toFixed(2) : "N/A"}
-                      </div>
-                      <span className={HERO_LABEL_STYLE}>Avg Rating</span>
-                    </div>
-                    <div className="h-10 w-10 relative pb-1">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RadialBarChart 
-                          innerRadius="70%" 
-                          outerRadius="100%" 
-                          barSize={5} 
-                          data={ratingData} 
-                          startAngle={90} 
-                          endAngle={-270}
-                        >
-                          <PolarAngleAxis type="number" domain={[0, 10]} angleAxisId={0} tick={false} />
-                          <RadialBar background dataKey="value" cornerRadius={0} />
-                        </RadialBarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col justify-end">
-                   <div className="flex items-center gap-6 h-[30px]">
-                    <div className="flex items-center gap-2">
-                      <div className="h-6 w-4 rounded-[1px] bg-yellow-400 shadow-sm border border-yellow-500/20"></div>
-                      <span className={HERO_NUMBER_STYLE}>{plStats?.cards?.yellow ?? 0}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-6 w-4 rounded-[1px] bg-red-500 shadow-sm border border-red-600/20"></div>
-                      <span className={HERO_NUMBER_STYLE}>{plStats?.cards?.red ?? 0}</span>
-                    </div>
-                  </div>
-                  <span className={HERO_LABEL_STYLE}>Cards</span>
-                </div>
-              </div>
-            </div>
-          </div>
+           </div>
         </div>
 
-        {/* Right Column: Detailed Statistics (Unified List) */}
-        <div className="lg:col-span-2 flex flex-col h-full">
-          <div className="rounded-xl bg-slate-50 p-6 h-full">
-            <div className={WIDGET_TITLE_STYLE}>Detailed Statistics</div>
+        {/* Row 2: Stats Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <div className="space-y-4 mt-2">
-              {isGoalkeeper ? (
-                <>
-                  <StatRow label="Penalties Saved" value={plStats?.penalty?.saved ?? 0} />
-                  
-                   <div className="py-2">
-                    <StatRow label="Passes" value={plStats?.passes?.total ?? 0} />
-                    {passAccuracy && passAccuracy > 0 ? (
-                      <AccuracyBar label="Pass Accuracy" percent={passAccuracy} />
-                    ) : null}
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Shooting Section */}
-                  {/* Removed border-b and mb-2 */}
-                  <div>
-                    <StatRow label="Shots" value={totalShots} />
-                    {totalShots > 0 && (
-                      <AccuracyBar label="Shot Accuracy" percent={shotAccuracy} />
+            {/* Left Column: Season Overview (Span 1) */}
+            <div className="lg:col-span-1 rounded-xl bg-slate-50 p-5 h-full">
+                <div className={WIDGET_TITLE_STYLE}>Season Overview</div>
+                <div className="flex flex-col gap-6">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                        <div className={HERO_NUMBER_STYLE}>{plStats?.games?.appearences ?? 0}</div>
+                        <span className={HERO_LABEL_STYLE}>Appearances</span>
+                        </div>
+                        <div>
+                        <div className={HERO_NUMBER_STYLE}>{plStats?.games?.minutes ?? 0}</div>
+                        <span className={HERO_LABEL_STYLE}>Minutes Played</span>
+                        </div>
+                    </div>
+                    {!isGoalkeeper && (
+                        <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.total ?? 0}</div>
+                            <span className={HERO_LABEL_STYLE}>Goals</span>
+                        </div>
+                        <div>
+                            <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.assists ?? 0}</div>
+                            <span className={HERO_LABEL_STYLE}>Assists</span>
+                        </div>
+                        </div>
                     )}
-                  </div>
-
-                  {/* Passing Section */}
-                   {/* Removed border-b and mb-2 */}
-                   <div>
-                    <StatRow label="Passes" value={plStats?.passes?.total ?? 0} />
-                    {passAccuracy && passAccuracy > 0 ? (
-                      <AccuracyBar label="Pass Accuracy" percent={passAccuracy} />
-                    ) : null}
-                     <StatRow label="Key Passes" value={plStats?.passes?.key ?? 0} />
-                  </div>
-
-                  {/* Other Stats */}
-                  <StatRow label="Dribbles Succ." value={plStats?.dribbles?.success ?? 0} />
-                  <StatRow label="Tackles" value={plStats?.tackles?.total ?? 0} />
-                  <StatRow label="Interceptions" value={plStats?.tackles?.interceptions ?? 0} />
-                  <StatRow label="Duels Won" value={plStats?.duels?.won ?? 0} />
-                  <StatRow label="Blocks" value={plStats?.tackles?.blocks ?? 0} />
-                </>
-              )}
+                    {isGoalkeeper && (
+                        <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.saves ?? 0}</div>
+                            <span className={HERO_LABEL_STYLE}>Saves</span>
+                        </div>
+                        <div>
+                            <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.conceded ?? 0}</div>
+                            <span className={HERO_LABEL_STYLE}>Conceded</span>
+                        </div>
+                        </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                        <div className="flex items-end gap-3 relative">
+                            <div>
+                            <div className={HERO_NUMBER_STYLE}>
+                                {rawRating > 0 ? rawRating.toFixed(2) : "N/A"}
+                            </div>
+                            <span className={HERO_LABEL_STYLE}>Avg Rating</span>
+                            </div>
+                            <div className="h-12 w-12 relative pb-1">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <RadialBarChart 
+                                innerRadius="70%" 
+                                outerRadius="100%" 
+                                barSize={6} 
+                                data={ratingData} 
+                                startAngle={90} 
+                                endAngle={-270}
+                                >
+                                <PolarAngleAxis type="number" domain={[0, 10]} angleAxisId={0} tick={false} />
+                                <RadialBar background dataKey="value" cornerRadius={0} />
+                                </RadialBarChart>
+                            </ResponsiveContainer>
+                            </div>
+                        </div>
+                        </div>
+                        <div className="flex flex-col justify-end">
+                        <div className="flex items-center gap-6 h-[30px]">
+                            <div className="flex items-center gap-2">
+                            <div className="h-6 w-4 rounded-[1px] bg-yellow-400 shadow-sm border border-yellow-500/20"></div>
+                            <span className={HERO_NUMBER_STYLE}>{plStats?.cards?.yellow ?? 0}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                            <div className="h-6 w-4 rounded-[1px] bg-red-500 shadow-sm border border-red-600/20"></div>
+                            <span className={HERO_NUMBER_STYLE}>{plStats?.cards?.red ?? 0}</span>
+                            </div>
+                        </div>
+                        <span className={HERO_LABEL_STYLE}>Cards</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            {/* Right Column: Detailed Statistics (Span 2) */}
+            <div className="lg:col-span-2 rounded-xl bg-slate-50 p-6 h-full">
+                <div className={WIDGET_TITLE_STYLE}>Detailed Statistics</div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                
+                {isGoalkeeper ? (
+                    <>
+                    <div className="space-y-4">
+                        <StatRow label="Penalties Saved" value={plStats?.penalty?.saved ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                        <StatRow label="Passes" value={plStats?.passes?.total ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                    </div>
+                    <div className="space-y-4">
+                        {passAccuracy && passAccuracy > 0 ? (
+                        <AccuracyBar label="Pass Accuracy" percent={passAccuracy} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                        ) : null}
+                    </div>
+                    </>
+                ) : (
+                    <>
+                    <div className="space-y-6">
+                        <div>
+                        <StatRow label="Shots" value={totalShots} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                        {totalShots > 0 && (
+                            <div className="mt-2">
+                            <AccuracyBar label="Shot Accuracy" percent={shotAccuracy} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                            </div>
+                        )}
+                        </div>
+                        
+                        <div>
+                        <StatRow label="Passes" value={plStats?.passes?.total ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                        {passAccuracy && passAccuracy > 0 ? (
+                            <div className="mt-2">
+                            <AccuracyBar label="Pass Accuracy" percent={passAccuracy} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                            </div>
+                        ) : null}
+                        </div>
+                        <StatRow label="Key Passes" value={plStats?.passes?.key ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                    </div>
+
+                    <div className="space-y-4">
+                        <StatRow label="Dribbles Succ." value={plStats?.dribbles?.success ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                        <StatRow label="Tackles" value={plStats?.tackles?.total ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                        <StatRow label="Interceptions" value={plStats?.tackles?.interceptions ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                        <StatRow label="Duels Won" value={plStats?.duels?.won ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                        <StatRow label="Blocks" value={plStats?.tackles?.blocks ?? 0} labelStyle={DETAIL_LABEL_STYLE} valueStyle={DETAIL_VALUE_STYLE} />
+                    </div>
+                    </>
+                )}
+
+                </div>
+            </div>
         </div>
       </div>
     </div>
@@ -227,25 +226,25 @@ function ProfileItem({ label, value, numberStyle, labelStyle }: { label: string,
   )
 }
 
-function StatRow({ label, value, subValue }: { label: string, value: string | number, subValue?: string }) {
+function StatRow({ label, value, subValue, labelStyle, valueStyle }: { label: string, value: string | number, subValue?: string, labelStyle: string, valueStyle: string }) {
   return (
-    <div className="flex justify-between items-center text-sm py-1.5">
-      <span className="text-slate-600">{label}</span>
-      <span className="font-semibold text-slate-900">
+    <div className="flex justify-between items-center">
+      <span className={labelStyle}>{label}</span>
+      <span className={valueStyle}>
         {value} <span className="text-xs text-slate-400 font-normal ml-1">{subValue}</span>
       </span>
     </div>
   )
 }
 
-function AccuracyBar({ label, percent }: { label: string, percent: number }) {
+function AccuracyBar({ label, percent, labelStyle, valueStyle }: { label: string, percent: number, labelStyle: string, valueStyle: string }) {
   return (
-    <div className="mt-1 mb-2">
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-slate-600">{label}</span>
-        <span className="font-semibold text-slate-900">{percent}%</span>
+    <div>
+      <div className="flex justify-between items-end mb-1">
+        <span className={labelStyle}>{label}</span>
+        <span className={valueStyle}>{percent}%</span>
       </div>
-      <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
         <div className="h-full bg-blue-500 rounded-full" style={{ width: `${percent}%` }} />
       </div>
     </div>
