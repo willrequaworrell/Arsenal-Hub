@@ -3,6 +3,7 @@
 
 import { PlayerStatistics } from "@/lib/api-football/schemas/players"
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from "recharts"
+import { Timer, Shirt, ArrowUpRight, Shield, CircleSlash, Target } from "lucide-react"
 
 type PlayerStatsPanelProps = {
   player: PlayerStatistics
@@ -36,9 +37,14 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
 
   // Standardized Styles
   const WIDGET_TITLE_STYLE = "text-sm font-semibold uppercase text-slate-500 tracking-wider border-b border-slate-200 pb-4 mb-4 -mx-5 px-5"
+  
+  // HERO STATS
   const HERO_NUMBER_STYLE = "text-2xl font-bold text-slate-900 leading-none"
   const HERO_LABEL_STYLE = "text-sm text-slate-500 font-medium mt-1 block"
   
+  // ICON STYLE (Neutral Slate)
+  const ICON_STYLE = "w-5 h-5 text-slate-400 mr-2" 
+
   // Detailed Stats Styles
   const DETAIL_LABEL_STYLE = "text-sm text-slate-500 font-medium" 
   const DETAIL_VALUE_STYLE = "text-base font-bold text-slate-900"
@@ -64,40 +70,51 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
         {/* Row 1: Profile (Full Width) */}
         <div className="rounded-xl bg-slate-50 p-5">
            <div className={WIDGET_TITLE_STYLE}>Profile</div>
-           {/* Horizontal Grid for Profile Items */}
            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-              <ProfileItem label="Age" value={pInfo.age} numberStyle={HERO_NUMBER_STYLE} labelStyle={HERO_LABEL_STYLE} />
-              <ProfileItem label="Nationality" value={pInfo.nationality} numberStyle="text-xl font-bold text-slate-900 leading-none truncate" labelStyle={HERO_LABEL_STYLE} />
-              <ProfileItem label="Height" value={heightDisplay} numberStyle={HERO_NUMBER_STYLE} labelStyle={HERO_LABEL_STYLE} />
-              <ProfileItem label="Weight" value={weightDisplay} numberStyle={HERO_NUMBER_STYLE} labelStyle={HERO_LABEL_STYLE} />
+              <ProfileItem label="Age" value={pInfo.age} numberStyle={HERO_NUMBER_STYLE} labelStyle="text-sm text-slate-500 font-medium mt-1 block" />
+              <ProfileItem label="Nationality" value={pInfo.nationality} numberStyle="text-xl font-bold text-slate-900 leading-none truncate" labelStyle="text-sm text-slate-500 font-medium mt-1 block" />
+              <ProfileItem label="Height" value={heightDisplay} numberStyle={HERO_NUMBER_STYLE} labelStyle="text-sm text-slate-500 font-medium mt-1 block" />
+              <ProfileItem label="Weight" value={weightDisplay} numberStyle={HERO_NUMBER_STYLE} labelStyle="text-sm text-slate-500 font-medium mt-1 block" />
            </div>
         </div>
 
         {/* Row 2: Stats Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            {/* Left Column: Season Overview (Span 1) */}
+            {/* Left Column: Season Overview */}
             <div className="lg:col-span-1 rounded-xl bg-slate-50 p-5 h-full">
                 <div className={WIDGET_TITLE_STYLE}>Season Overview</div>
                 <div className="flex flex-col gap-6">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                        <div className={HERO_NUMBER_STYLE}>{plStats?.games?.appearences ?? 0}</div>
-                        <span className={HERO_LABEL_STYLE}>Appearances</span>
+                            <div className="flex items-center">
+                                <Shirt className={ICON_STYLE} />
+                                <div className={HERO_NUMBER_STYLE}>{plStats?.games?.appearences ?? 0}</div>
+                            </div>
+                            <span className={HERO_LABEL_STYLE}>Appearances</span>
                         </div>
                         <div>
-                        <div className={HERO_NUMBER_STYLE}>{plStats?.games?.minutes ?? 0}</div>
-                        <span className={HERO_LABEL_STYLE}>Minutes Played</span>
+                            <div className="flex items-center">
+                                <Timer className={ICON_STYLE} />
+                                <div className={HERO_NUMBER_STYLE}>{plStats?.games?.minutes ?? 0}</div>
+                            </div>
+                            <span className={HERO_LABEL_STYLE}>Minutes</span>
                         </div>
                     </div>
                     {!isGoalkeeper && (
                         <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.total ?? 0}</div>
+                            <div className="flex items-center">
+                                <Target className={ICON_STYLE} /> 
+                                <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.total ?? 0}</div>
+                            </div>
                             <span className={HERO_LABEL_STYLE}>Goals</span>
                         </div>
                         <div>
-                            <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.assists ?? 0}</div>
+                            <div className="flex items-center">
+                                <ArrowUpRight className={ICON_STYLE} />
+                                <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.assists ?? 0}</div>
+                            </div>
                             <span className={HERO_LABEL_STYLE}>Assists</span>
                         </div>
                         </div>
@@ -105,40 +122,48 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
                     {isGoalkeeper && (
                         <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.saves ?? 0}</div>
+                             <div className="flex items-center">
+                                <Shield className={ICON_STYLE} />
+                                <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.saves ?? 0}</div>
+                            </div>
                             <span className={HERO_LABEL_STYLE}>Saves</span>
                         </div>
                         <div>
-                            <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.conceded ?? 0}</div>
+                             <div className="flex items-center">
+                                <CircleSlash className={ICON_STYLE} />
+                                <div className={HERO_NUMBER_STYLE}>{plStats?.goals?.conceded ?? 0}</div>
+                            </div>
                             <span className={HERO_LABEL_STYLE}>Conceded</span>
                         </div>
                         </div>
                     )}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col">
-                        <div className="flex items-end gap-3 relative">
                             <div>
-                            <div className={HERO_NUMBER_STYLE}>
-                                {rawRating > 0 ? rawRating.toFixed(2) : "N/A"}
+                              <div className="flex items-center">
+                                {/* Rating Number */}
+                                <div className={HERO_NUMBER_STYLE}>
+                                    {rawRating > 0 ? rawRating.toFixed(2) : "N/A"}
+                                </div>
+                                {/* Radial Chart Inline (Increased size to h-10 w-10) */}
+                                <div className="h-10 w-10 ml-1 relative">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <RadialBarChart 
+                                        innerRadius="60%" 
+                                        outerRadius="100%" 
+                                        barSize={5} 
+                                        data={ratingData} 
+                                        startAngle={90} 
+                                        endAngle={-270}
+                                        >
+                                        <PolarAngleAxis type="number" domain={[0, 10]} angleAxisId={0} tick={false} />
+                                        <RadialBar background dataKey="value" cornerRadius={0} />
+                                        </RadialBarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                              </div>
+                              <span className={HERO_LABEL_STYLE}>Avg Rating</span>
                             </div>
-                            <span className={HERO_LABEL_STYLE}>Avg Rating</span>
-                            </div>
-                            <div className="h-12 w-12 relative pb-1">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <RadialBarChart 
-                                innerRadius="70%" 
-                                outerRadius="100%" 
-                                barSize={6} 
-                                data={ratingData} 
-                                startAngle={90} 
-                                endAngle={-270}
-                                >
-                                <PolarAngleAxis type="number" domain={[0, 10]} angleAxisId={0} tick={false} />
-                                <RadialBar background dataKey="value" cornerRadius={0} />
-                                </RadialBarChart>
-                            </ResponsiveContainer>
-                            </div>
-                        </div>
                         </div>
                         <div className="flex flex-col justify-end">
                         <div className="flex items-center gap-6 h-[30px]">
@@ -157,7 +182,7 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
                 </div>
             </div>
 
-            {/* Right Column: Detailed Statistics (Span 2) */}
+            {/* Right Column: Detailed Statistics */}
             <div className="lg:col-span-2 rounded-xl bg-slate-50 p-6 h-full">
                 <div className={WIDGET_TITLE_STYLE}>Detailed Statistics</div>
                 
