@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { Event } from "@/lib/api-football/schemas/fixture-events"
+import { Event } from "@/lib/schemas/fixture-events"
 
 type MatchEventProps = {
   event: Event

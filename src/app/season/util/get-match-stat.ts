@@ -1,4 +1,4 @@
-import { FixtureTeamStatistics } from "@/lib/api-football/schemas/statistics"
+import { FixtureTeamStatistics } from "@/lib/schemas/statistics"
 
   /*
    * Unified function to get and parse stats for your team vs opponent

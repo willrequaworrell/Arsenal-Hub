@@ -4,7 +4,7 @@
 import { useMemo } from "react"
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { ChartContainer, ChartConfig } from "@/components/ui/chart"
-import { Fixture } from "@/lib/api-football/schemas/fixtures"
+import { Fixture } from "@/lib/schemas/fixtures"
 import { calculateHomeAwayStats, transformToRadarData } from "../util/home-away-stats"
 
 type HomeAwayRadarProps = {

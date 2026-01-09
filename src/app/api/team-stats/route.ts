@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { fetchFromAPIFootball, API } from "@/lib/api-football/api-football"
-import { TeamStatsSchema, toFormAndRecord } from "@/lib/api-football/schemas/team-stats"
+import { TeamStatsSchema, toFormAndRecord } from "@/lib/schemas/team-stats"
 import { validateAPIFootballResponse } from "@/lib/api-football/validate-response"
 import { DEFAULT_TEAM_ID } from "@/lib/config/api-football"
 

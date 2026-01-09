@@ -1,5 +1,5 @@
 // src/lib/data/team-stats.ts
-import type { TeamFormAndRecord } from "@/lib/api-football/schemas/team-stats"
+import type { TeamFormAndRecord } from "@/lib/schemas/team-stats"
 
 export type TeamStatsResult = {
   data: TeamFormAndRecord | null

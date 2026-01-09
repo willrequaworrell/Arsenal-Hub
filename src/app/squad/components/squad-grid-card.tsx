@@ -3,7 +3,7 @@
 
 import Image from "next/image"
 import { ChevronDown } from "lucide-react"
-import { PlayerStatistics } from "@/lib/api-football/schemas/players"
+import { PlayerStatistics } from "@/lib/schemas/players"
 import { getFlagUrlForNationality } from "@/lib/api-football/nationality-flags"
 import CardContainer from "@/components/ui/custom/card-container"
 

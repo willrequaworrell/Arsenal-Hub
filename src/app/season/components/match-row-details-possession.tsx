@@ -1,5 +1,5 @@
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { FixtureStatistics } from "@/lib/api-football/schemas/statistics"
+import { FixtureStatistics } from "@/lib/schemas/statistics"
 import missingLogo from "../../../../public/missingLogo.png"
 import Image from "next/image"
 import { Pie, PieChart } from "recharts"

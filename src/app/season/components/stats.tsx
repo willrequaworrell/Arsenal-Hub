@@ -1,6 +1,6 @@
 // app/(season)/components/stats.tsx
 import CardContainer from "@/components/ui/custom/card-container"
-import { Fixture } from "@/lib/api-football/schemas/fixtures"
+import { Fixture } from "@/lib/schemas/fixtures"
 import LeaguePositionChart from "./position-over-time-chart"
 import HomeAwayRadar from "./home-away-radar"
 import { DEFAULT_TEAM_ID } from "@/lib/config/api-football"

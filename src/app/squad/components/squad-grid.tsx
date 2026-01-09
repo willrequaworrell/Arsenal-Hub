@@ -1,7 +1,8 @@
+// app/squad/components/squad-grid.tsx
 "use client"
 
 import { useState } from "react"
-import { PlayerStatistics } from "@/lib/api-football/schemas/players"
+import { PlayerStatistics } from "@/lib/schemas/players"
 import PlayerCard from "./squad-grid-card"
 import PlayerStatsPanel from "./squad-grid-card-details"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -77,7 +78,8 @@ export default function SquadGrid({ players }: SquadGridProps) {
                     </div>
 
                     {isPanelActiveForRow && expandedPlayer && (
-                      <div className="mt-4">
+                      // UPDATED: increased margin to mt-8 to match grid gap
+                      <div className="mt-8">
                         <PlayerStatsPanel
                           player={expandedPlayer}
                           onClose={() => setExpandedPlayerId(null)}

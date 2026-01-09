@@ -1,5 +1,5 @@
 // lib/data/players.ts
-import { PlayerStatistics } from "../api-football/schemas/players"
+import { PlayerStatistics } from "../schemas/players"
 
 export type PlayersResult = {
   data: PlayerStatistics[] | null

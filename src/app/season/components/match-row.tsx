@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { useQuery } from "@tanstack/react-query"
 import { TableRow, TableCell } from '@/components/ui/table'
-import { Fixture } from "@/lib/api-football/schemas/fixtures"
+import { Fixture } from "@/lib/schemas/fixtures"
 import { getTeamConfig } from "@/lib/config/team"
 import { getFixtureStatistics } from "@/lib/data/fixture-statistics"
 import { getFixtureEvents } from "@/lib/data/fixture-events"

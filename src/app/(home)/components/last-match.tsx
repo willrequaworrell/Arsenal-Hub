@@ -1,6 +1,6 @@
 import Image from "next/image"
 import CardContainer from "@/components/ui/custom/card-container"
-import { FixtureTeamSchema, GoalsSchema } from "@/lib/api-football/schemas/fixtures"
+import { FixtureTeamSchema, GoalsSchema } from "@/lib/schemas/fixtures"
 import z from "zod"
 
 import missingLogo from "../../../../public/missingLogo.png"

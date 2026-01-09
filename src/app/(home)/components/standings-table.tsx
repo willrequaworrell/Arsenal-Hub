@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Table, TableRow, TableCell, TableBody } from '@/components/ui/table'
-import { StandingRow } from "@/lib/api-football/schemas/standings";
+import { StandingRow } from "@/lib/schemas/standings";
 import missingLogo from '../../../../public/missingLogo.png'
 import CardContainer from "@/components/ui/custom/card-container";
 import { getStandings } from "@/lib/data/standings";

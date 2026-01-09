@@ -1,4 +1,4 @@
-import { FixtureTeamStatistics } from "@/lib/api-football/schemas/statistics"
+import { FixtureTeamStatistics } from "@/lib/schemas/statistics"
 import { getMatchStat } from "../util/get-match-stat"
 
 type MatchH2HProps = {

@@ -1,5 +1,5 @@
 // app/(season)/util/home-away-stats.ts
-import { Fixture } from "@/lib/api-football/schemas/fixtures"
+import { Fixture } from "@/lib/schemas/fixtures"
 
 type VenueStats = {
   goalsPerGame: number

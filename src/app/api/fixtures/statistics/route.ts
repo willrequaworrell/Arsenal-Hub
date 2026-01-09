@@ -1,6 +1,6 @@
 // app/api/fixtures/statistics/route.ts
 import { fetchFromAPIFootball } from '@/lib/api-football/api-football'
-import { FixtureStatisticsSchema } from '@/lib/api-football/schemas/statistics'
+import { FixtureStatisticsSchema } from '@/lib/schemas/statistics'
 import { validateAPIFootballResponse } from '@/lib/api-football/validate-response'
 import { NextResponse } from 'next/server'
 

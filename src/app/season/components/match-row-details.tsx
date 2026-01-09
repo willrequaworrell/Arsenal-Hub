@@ -1,8 +1,8 @@
 "use client"
 
-import { Fixture } from "@/lib/api-football/schemas/fixtures"
-import { FixtureStatistics } from "@/lib/api-football/schemas/statistics"
-import { FixtureEvents } from "@/lib/api-football/schemas/fixture-events"
+import { Fixture } from "@/lib/schemas/fixtures"
+import { FixtureStatistics } from "@/lib/schemas/statistics"
+import { FixtureEvents } from "@/lib/schemas/fixture-events"
 import { getContrastingTeamColors } from "@/lib/api-football/team-data"
 import MatchPossessionChart from "./match-row-details-possession"
 import DataUnavailable from "@/components/ui/custom/data-unavailable"

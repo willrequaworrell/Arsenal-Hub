@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { Fixture } from "@/lib/api-football/schemas/fixtures"
+import { Fixture } from "@/lib/schemas/fixtures"
 import CardContainer from "@/components/ui/custom/card-container"
 import { Table, TableBody } from '@/components/ui/table'
 import MatchRow from "./match-row"

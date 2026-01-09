@@ -1,7 +1,7 @@
 import Image from "next/image";
 import CardContainer from "@/components/ui/custom/card-container"
 import MatchCountdown from "./match-countdown"
-import { FixtureTeamSchema, VenueSchema } from "@/lib/api-football/schemas/fixtures";
+import { FixtureTeamSchema, VenueSchema } from "@/lib/schemas/fixtures";
 import z from "zod";
 
 import missingLogo from "../../../../public/missingLogo.png"

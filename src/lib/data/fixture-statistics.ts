@@ -1,5 +1,5 @@
 // lib/data/statistics.ts
-import { FixtureStatistics } from "../api-football/schemas/statistics"
+import { FixtureStatistics } from "../schemas/statistics"
 
 export type StatisticsResult = {
   data: FixtureStatistics | null

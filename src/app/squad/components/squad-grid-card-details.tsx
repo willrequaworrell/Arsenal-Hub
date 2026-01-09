@@ -1,9 +1,9 @@
 // app/squad/components/squad-grid-card-details.tsx
 "use client"
 
-import { PlayerStatistics } from "@/lib/api-football/schemas/players"
+import { PlayerStatistics } from "@/lib/schemas/players"
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from "recharts"
-import { Timer, Shirt, ArrowUpRight, Shield, CircleSlash, Target } from "lucide-react"
+import { Timer, Shirt, ArrowUpRight, Shield, CircleSlash, Target, CalendarDays, Globe, Ruler, Weight } from "lucide-react"
 
 type PlayerStatsPanelProps = {
   player: PlayerStatistics
@@ -40,7 +40,7 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
   
   // HERO STATS
   const HERO_NUMBER_STYLE = "text-2xl font-bold text-slate-900 leading-none"
-  const HERO_LABEL_STYLE = "text-sm text-slate-500 font-medium mt-1 block"
+  const HERO_LABEL_STYLE = "text-sm text-slate-500 font-medium mt-1 block" // Reverted centering
   
   // ICON STYLE (Neutral Slate)
   const ICON_STYLE = "w-5 h-5 text-slate-400 mr-2" 
@@ -71,10 +71,34 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
         <div className="rounded-xl bg-slate-50 p-5">
            <div className={WIDGET_TITLE_STYLE}>Profile</div>
            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-              <ProfileItem label="Age" value={pInfo.age} numberStyle={HERO_NUMBER_STYLE} labelStyle="text-sm text-slate-500 font-medium mt-1 block" />
-              <ProfileItem label="Nationality" value={pInfo.nationality} numberStyle="text-xl font-bold text-slate-900 leading-none truncate" labelStyle="text-sm text-slate-500 font-medium mt-1 block" />
-              <ProfileItem label="Height" value={heightDisplay} numberStyle={HERO_NUMBER_STYLE} labelStyle="text-sm text-slate-500 font-medium mt-1 block" />
-              <ProfileItem label="Weight" value={weightDisplay} numberStyle={HERO_NUMBER_STYLE} labelStyle="text-sm text-slate-500 font-medium mt-1 block" />
+              <ProfileItem 
+                label="Age" 
+                value={pInfo.age} 
+                icon={<CalendarDays className={ICON_STYLE} />}
+                numberStyle={HERO_NUMBER_STYLE} 
+                labelStyle={HERO_LABEL_STYLE} 
+              />
+              <ProfileItem 
+                label="Nationality" 
+                value={pInfo.nationality} 
+                icon={<Globe className={ICON_STYLE} />}
+                numberStyle="text-xl font-bold text-slate-900 leading-none truncate" 
+                labelStyle={HERO_LABEL_STYLE} 
+              />
+              <ProfileItem 
+                label="Height" 
+                value={heightDisplay} 
+                icon={<Ruler className={ICON_STYLE} />}
+                numberStyle={HERO_NUMBER_STYLE} 
+                labelStyle={HERO_LABEL_STYLE} 
+              />
+              <ProfileItem 
+                label="Weight" 
+                value={weightDisplay} 
+                icon={<Weight className={ICON_STYLE} />}
+                numberStyle={HERO_NUMBER_STYLE} 
+                labelStyle={HERO_LABEL_STYLE} 
+              />
            </div>
         </div>
 
@@ -141,11 +165,9 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
                         <div className="flex flex-col">
                             <div>
                               <div className="flex items-center">
-                                {/* Rating Number */}
                                 <div className={HERO_NUMBER_STYLE}>
                                     {rawRating > 0 ? rawRating.toFixed(2) : "N/A"}
                                 </div>
-                                {/* Radial Chart Inline (Increased size to h-10 w-10) */}
                                 <div className="h-10 w-10 ml-1 relative">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <RadialBarChart 
@@ -166,17 +188,17 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
                             </div>
                         </div>
                         <div className="flex flex-col justify-end">
-                        <div className="flex items-center gap-6 h-[30px]">
-                            <div className="flex items-center gap-2">
-                            <div className="h-6 w-4 rounded-[1px] bg-yellow-400 shadow-sm border border-yellow-500/20"></div>
-                            <span className={HERO_NUMBER_STYLE}>{plStats?.cards?.yellow ?? 0}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                            <div className="h-6 w-4 rounded-[1px] bg-red-500 shadow-sm border border-red-600/20"></div>
-                            <span className={HERO_NUMBER_STYLE}>{plStats?.cards?.red ?? 0}</span>
-                            </div>
-                        </div>
-                        <span className={HERO_LABEL_STYLE}>Cards</span>
+                          <div className="flex items-center gap-6 h-[30px]">
+                              <div className="flex items-center gap-2">
+                              <div className="h-6 w-4 rounded-[1px] bg-yellow-400 shadow-sm border border-yellow-500/20"></div>
+                              <span className={HERO_NUMBER_STYLE}>{plStats?.cards?.yellow ?? 0}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                              <div className="h-6 w-4 rounded-[1px] bg-red-500 shadow-sm border border-red-600/20"></div>
+                              <span className={HERO_NUMBER_STYLE}>{plStats?.cards?.red ?? 0}</span>
+                              </div>
+                          </div>
+                          <span className={HERO_LABEL_STYLE}>Cards</span>
                         </div>
                     </div>
                 </div>
@@ -241,11 +263,14 @@ export default function PlayerStatsPanel({ player, onClose }: PlayerStatsPanelPr
   )
 }
 
-function ProfileItem({ label, value, numberStyle, labelStyle }: { label: string, value: string | number | null, numberStyle: string, labelStyle: string }) {
+function ProfileItem({ label, value, icon, numberStyle, labelStyle }: { label: string, value: string | number | null, icon?: React.ReactNode, numberStyle: string, labelStyle: string }) {
   if (!value) return null
   return (
     <div>
-      <p className={numberStyle}>{value}</p>
+      <div className="flex items-center">
+        {icon}
+        <p className={numberStyle}>{value}</p>
+      </div>
       <p className={labelStyle}>{label}</p>
     </div>
   )

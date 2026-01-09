@@ -1,4 +1,4 @@
-import { StandingRow } from "../api-football/schemas/standings";
+import { StandingRow } from "../schemas/standings";
 
 type StandingsResult = {
   data: StandingRow[] | null

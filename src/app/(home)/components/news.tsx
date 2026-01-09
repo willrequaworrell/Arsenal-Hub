@@ -10,16 +10,19 @@ const News = async () => {
 
   if (!success || !data || data.length === 0) {
     return (
-      <CardContainer title="News" className="p-6">
+      <CardContainer title="Recent News" className="p-6">
         <DataUnavailable message="News data unavailable" />
       </CardContainer>
     )
   }
+
+  // Take only the 5 most recent articles
+  const recentArticles = data.slice(0, 5)
     
   return (
-    <CardContainer title="News" className="p-6">
+    <CardContainer title="Recent News" className="p-6">
       <div className="h-full"> 
-        <NewsCarousel articles={data} />
+        <NewsCarousel articles={recentArticles} />
       </div>
     </CardContainer>
   )

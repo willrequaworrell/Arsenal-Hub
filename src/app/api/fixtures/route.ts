@@ -1,5 +1,5 @@
 import { fetchFromAPIFootball } from '@/lib/api-football/api-football'
-import { FixturesArraySchema } from '@/lib/api-football/schemas/fixtures'
+import { FixturesArraySchema } from '@/lib/schemas/fixtures'
 import { validateAPIFootballResponse } from '@/lib/api-football/validate-response'
 import { API_FOOTBALL, DEFAULT_TEAM_ID } from '@/lib/config/api-football'
 import { NextResponse } from 'next/server'

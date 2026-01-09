@@ -1,4 +1,4 @@
-import {Event} from "@/lib/api-football/schemas/fixture-events"
+import {Event} from "@/lib/schemas/fixture-events"
 import MatchEvent from "./match-row-details-event"
 
 type MatchEventProps = {

@@ -1,5 +1,5 @@
 // lib/data/fixtures.ts
-import { Fixture } from "../api-football/schemas/fixtures"
+import { Fixture } from "../schemas/fixtures"
 import { DEFAULT_TEAM_ID } from "../config/api-football"
 
 export type FixturesResult = {

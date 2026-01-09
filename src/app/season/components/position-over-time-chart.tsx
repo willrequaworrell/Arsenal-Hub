@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { ChartContainer, ChartConfig } from "@/components/ui/chart"
-import { Fixture } from "@/lib/api-football/schemas/fixtures"
+import { Fixture } from "@/lib/schemas/fixtures"
 import { calculateLeaguePositionOverTime } from "../util/position-over-time"
 
 type LeaguePositionChartProps = {

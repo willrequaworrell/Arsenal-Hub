@@ -1,5 +1,5 @@
 // lib/data/calculate-league-position.ts
-import { Fixture } from "@/lib/api-football/schemas/fixtures"
+import { Fixture } from "@/lib/schemas/fixtures"
 
 /**
  * Internal: Track team stats during calculation

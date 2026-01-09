@@ -2,11 +2,13 @@
 import { DEFAULT_TEAM_ID } from "../config/api-football"
 
 export type NewsArticle = {
+  id: string
   title: string
-  link: string
-  pubDate: string
-  content: string
-  thumbnail: string | null
+  url: string       // Was 'link'
+  publishedAt: string // Was 'pubDate'
+  source: string    // New field
+  summary: string   // Was 'content'
+  imageUrl: string | null // Was 'thumbnail'
 }
 
 export type NewsResult = {
@@ -18,7 +20,9 @@ export type NewsResult = {
 const REVALIDATE_SECS = 600
 
 export const getTeamNews = async (teamId: string = DEFAULT_TEAM_ID): Promise<NewsResult> => {
-  const url = new URL('/api/news', process.env.NEXT_PUBLIC_BASE_URL)
+  // Ensure we have a valid base URL for server-side fetches
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const url = new URL('/api/news', baseUrl)
   url.searchParams.set('teamId', teamId)
 
   try {
@@ -37,7 +41,8 @@ export const getTeamNews = async (teamId: string = DEFAULT_TEAM_ID): Promise<New
 
     return { data: json.data, success: true }
 
-  } catch {
+  } catch (error) {
+    console.error("News fetch error:", error)
     return { data: null, success: false, message: "network/timeout" }
   }
 }

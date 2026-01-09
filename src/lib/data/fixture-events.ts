@@ -1,4 +1,4 @@
-import { FixtureEvents } from "../api-football/schemas/fixture-events"
+import { FixtureEvents } from "../schemas/fixture-events"
 
 export type EventsResult = {
   data: FixtureEvents | null

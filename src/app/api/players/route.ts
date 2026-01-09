@@ -1,6 +1,6 @@
 // app/api/players/route.ts
 import { fetchFromAPIFootball } from '@/lib/api-football/api-football'
-import { PlayersArraySchema, type PlayerStatistics } from '@/lib/api-football/schemas/players'
+import { PlayersArraySchema, type PlayerStatistics } from '@/lib/schemas/players'
 import { validateAPIFootballResponse } from '@/lib/api-football/validate-response'
 import { API_FOOTBALL, DEFAULT_TEAM_ID } from '@/lib/config/api-football'
 import { NextResponse } from 'next/server'

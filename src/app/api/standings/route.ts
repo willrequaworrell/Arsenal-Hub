@@ -1,5 +1,5 @@
 import { fetchFromAPIFootball, API } from "@/lib/api-football/api-football"
-import { StandingsArraySchema } from "@/lib/api-football/schemas/standings"
+import { StandingsArraySchema } from "@/lib/schemas/standings"
 import { validateAPIFootballResponse } from "@/lib/api-football/validate-response"
 import { NextResponse } from "next/server"
 
