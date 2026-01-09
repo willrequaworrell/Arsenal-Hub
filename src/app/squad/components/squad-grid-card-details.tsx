@@ -1,4 +1,3 @@
-// app/squad/components/squad-grid-card-details.tsx
 "use client"
 
 import { PlayerStatistics } from "@/lib/schemas/players"

@@ -15,7 +15,6 @@ export default async function SquadPage() {
 
   return (
     <div className="px-4 py-6 sm:px-[5%] sm:py-[2%]">
-      <h1 className="text-3xl font-bold mb-6">Squad</h1>
       <SquadGrid players={players} />
     </div>
   )

@@ -1,4 +1,3 @@
-// app/squad/components/squad-grid-card.tsx
 "use client"
 
 import Image from "next/image"
@@ -67,14 +66,6 @@ export default function PlayerCard({ player, isExpanded, onClick }: PlayerCardPr
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />
 
-          {/* Expand chevron in photo corner */}
-          {/* <div className="pointer-events-none absolute right-3 top-3 rounded-full bg-black/50 p-1">
-            <ChevronDown
-              className={`h-4 w-4 text-white transition-transform ${
-                isExpanded ? "rotate-180" : ""
-              }`}
-            />
-          </div> */}
         </div>
       </CardContainer>
 
