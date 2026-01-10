@@ -18,7 +18,7 @@ export default function MatchList({ fixtures }: MatchListProps) {
   // Get season from environment variable - use NEXT_PUBLIC_ for client components
   const season = process.env.NEXT_PUBLIC_SEASON || new Date().getFullYear().toString()
   const nextYear = (parseInt(season) + 1).toString().slice(-2)
-  const seasonTitle = `${season}/${nextYear} Season Fixtures`
+  const seasonTitle = `${season}/${nextYear} SEASON FIXTURES`
 
   if (!fixtures.length) {
     return (

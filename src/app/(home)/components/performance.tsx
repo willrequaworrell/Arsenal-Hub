@@ -10,7 +10,7 @@ const Performance = async () => {
   /* Handle case where data is unavailable */
   if (!success || !data) {
     return (
-      <CardContainer title="Performance" className="p-6">
+      <CardContainer title="PERFORMANCE" className="p-6">
         <DataUnavailable message="Performance data unavailable" />
       </CardContainer>
     )
@@ -21,7 +21,7 @@ const Performance = async () => {
   const recentForm = form.substring(form.length - FORM_LENGTH)
 
   return (
-    <CardContainer title="Performance" className="p-6">
+    <CardContainer title="PERFORMANCE" className="p-6">
       <div className="flex h-full flex-col items-center justify-center gap-y-3 sm:flex-row sm:justify-around sm:gap-y-0">
         <div className="text-center">
           <p className="font-bold text-[clamp(1rem,2vw,2rem)]">

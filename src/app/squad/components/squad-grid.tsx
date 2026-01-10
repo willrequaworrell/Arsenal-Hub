@@ -77,7 +77,7 @@ export default function SquadGrid({ players }: SquadGridProps) {
     <div className="space-y-8">
       {squadSections.map((section) => (
         <div key={section.title}>
-          <h2 className="text-xl font-semibold mb-4 text-slate-700">
+          <h2 className="text-4xl font-semibold uppercase mb-4 text-slate-700">
             {section.title}
           </h2>
 

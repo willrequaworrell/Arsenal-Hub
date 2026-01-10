@@ -10,7 +10,7 @@ export default async function NewsPage() {
   if (!success || !data || data.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Arsenal News</h1>
+        {/* <h1 className="text-3xl font-bold mb-6">Arsenal News</h1> */}
         <DataUnavailable message="No news articles available" />
       </div>
     )
@@ -18,7 +18,7 @@ export default async function NewsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Arsenal News</h1>
+      {/* <h1 className="text-3xl font-bold mb-6">Arsenal News</h1> */}
       <NewsFeed initialArticles={data} />
     </div>
   )

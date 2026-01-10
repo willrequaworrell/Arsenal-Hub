@@ -12,25 +12,25 @@ const StandingsTable = async () => {
 
   if (!success || !standings) {
     return (
-      <CardContainer title="Standings" className="p-6">
+      <CardContainer title="STANDINGS" className="p-6">
         <DataUnavailable message="Standings data is currently unavailable." />
       </CardContainer>
     )
   }
 
   return (
-    <CardContainer title="Standings" className="p-6">
+    <CardContainer title="STANDINGS" className="p-6">
       <Table>
         <TableBody>
           {standings.map((team, i: number) => {
             if (i < 5) return (
               <TableRow key={team.team.id} className={`flex ${team.team.name === "Arsenal" && "bg-red-500/10"}`}>
-                <TableCell>{team.rank}</TableCell>
+                <TableCell className="font-semibold w-6">{team.rank}</TableCell>
                 <TableCell >
                   <Image width={50} height={50} src={team.team.logo || missingLogo} alt={`${team.team.name} Logo`} className="size-6" />
                 </TableCell>
-                <TableCell className="flex-1">{team.team.name}</TableCell>
-                <TableCell className="font-bold">{team.points}</TableCell>
+                <TableCell className="flex-1 font-medium">{team.team.name}</TableCell>
+                <TableCell className="font-medium">{team.points} pts</TableCell>
               </TableRow>
             )
           })}

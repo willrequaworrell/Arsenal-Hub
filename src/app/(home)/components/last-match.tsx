@@ -17,7 +17,7 @@ const LastMatch = async () => {
   
   if (!success || !fixtures || fixtures.length < 2) {
     return (
-      <CardContainer title="Last Result" className="p-6">
+      <CardContainer title="LAST RESULT" className="p-6">
         <DataUnavailable message="Last match data unavailable" />
       </CardContainer>
     )
@@ -29,7 +29,7 @@ const LastMatch = async () => {
   const goals = lastResult.goals
 
   return (
-    <CardContainer title="Last Result" className="p-6">
+    <CardContainer title="LAST RESULT" className="p-6">
       <div className="flex h-full flex-col justify-center gap-y-2">
         <div className="flex items-center gap-x-2 p-1">
           <Image 
