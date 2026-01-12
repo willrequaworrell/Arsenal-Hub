@@ -1,5 +1,6 @@
-// lib/data/fixtures.ts
-import { Fixture } from "../schemas/fixtures"
+import { FixturesArraySchema, type Fixture } from "../schemas/fixtures"
+import { fetchFromAPIFootball, API } from "../api-football/api-football"
+import { validateAPIFootballResponse } from "../api-football/validate-response"
 import { DEFAULT_TEAM_ID } from "../config/api-football"
 
 export type FixturesResult = {
@@ -8,40 +9,64 @@ export type FixturesResult = {
   message?: string
 }
 
-const REVALIDATE_SECS = 300
+const REVALIDATE_SECS = 3600
 
 export const getFixtures = async (teamId?: string): Promise<FixturesResult> => {
-  const absoluteUrl = new URL('/api/fixtures', process.env.NEXT_PUBLIC_BASE_URL)
   
-  // Only add teamId param if provided
-  if (teamId) {
-    absoluteUrl.searchParams.set('teamId', teamId)
+  // cache tags for single team vs whole league
+  const cacheTag = teamId ? `fixtures-${teamId}` : `fixtures-league-${API.league}`
+
+  const query: Record<string, string | number> = {
+    league: API.league,
+    season: API.season,
   }
 
-  const cacheTag = teamId 
-    ? `fixtures-${teamId}` 
-    : 'fixtures-all-league'
+  // CHANGE 3: Only add 'team' param if specifically requested
+  if (teamId) {
+    query.team = teamId
+  }
 
   try {
-    const res = await fetch(absoluteUrl, {
-      next: {
+    const data = await fetchFromAPIFootball(
+      '/fixtures',
+      query,
+      {
         revalidate: REVALIDATE_SECS,
         tags: [cacheTag]
-      },
-    });
+      }
+    )
 
-    if (!res.ok) {
-      return { data: null, success: false, message: `HTTP ${res.status}` }
+    const validation = validateAPIFootballResponse(data)
+    if (!validation.valid) {
+      return { 
+        data: null, 
+        success: false, 
+        message: validation.error 
+      }
     }
 
-    const json = await res.json() as { ok: boolean; data?: Fixture[]; error?: string }
-    if (!json.ok || !json.data) {
-      return { data: null, success: false, message: "invalid payload" }
+    const fixtures = data?.response ?? []
+    const parsed = FixturesArraySchema.safeParse(fixtures)
+
+    if (!parsed.success) {
+      return { 
+        data: null, 
+        success: false, 
+        message: "Invalid fixtures payload" 
+      }
     }
     
-    return { data: json.data, success: true }
+    return { 
+      data: parsed.data, 
+      success: true 
+    }
 
-  } catch {
-    return { data: null, success: false, message: "network/timeout" }
+  } catch (error) {
+    console.error("Fixtures Fetch Error:", error)
+    return { 
+      data: null, 
+      success: false, 
+      message: "Upstream failure" 
+    }
   }
 }

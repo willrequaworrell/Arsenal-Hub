@@ -1,5 +1,7 @@
-// src/lib/data/team-stats.ts
-import type { TeamFormAndRecord } from "@/lib/schemas/team-stats"
+import { fetchFromAPIFootball, API } from "@/lib/api-football/api-football"
+import { TeamStatsSchema, toFormAndRecord, type TeamFormAndRecord } from "@/lib/schemas/team-stats"
+import { validateAPIFootballResponse } from "@/lib/api-football/validate-response"
+import { DEFAULT_TEAM_ID } from "@/lib/config/api-football"
 
 export type TeamStatsResult = {
   data: TeamFormAndRecord | null
@@ -7,32 +9,57 @@ export type TeamStatsResult = {
   message?: string
 }
 
-const REVALIDATE_SECS = 300
-const DEFAULT_TEAM_ID = process.env.API_FOOTBALL_TEAM_ID ?? "42"
+// 1 hour (3600s) bc stats only change after a match
+const REVALIDATE_SECS = 3600 
 
 export async function getTeamFormAndRecord(teamId: string = DEFAULT_TEAM_ID): Promise<TeamStatsResult> {
-  const url = new URL("/api/team-stats", process.env.NEXT_PUBLIC_BASE_URL)
-  url.searchParams.set('teamId', teamId)
-
   try {
-    const res = await fetch(url.toString(), {
-      next: { 
-        revalidate: REVALIDATE_SECS, 
-        tags: [`team-stats-${teamId}`] 
+    const data = await fetchFromAPIFootball(
+      "/teams/statistics", 
+      {
+        league: API.league,
+        season: API.season,
+        team: teamId
       },
-    })
+      { 
+        revalidate: REVALIDATE_SECS,
+        tags: [`team-stats-${teamId}`] 
+      }
+    )
 
-    if (!res.ok) {
-      return { data: null, success: false, message: `HTTP ${res.status}` }
+    const validation = validateAPIFootballResponse(data)
+    if (!validation.valid) {
+      return { 
+        data: null, 
+        success: false, 
+        message: validation.error 
+      }
     }
 
-    const json = (await res.json()) as { ok: boolean; data?: TeamFormAndRecord; error?: string }
-    if (!json.ok || !json.data) {
-      return { data: null, success: false, message: json.error ?? "invalid payload" }
+    const raw = data?.response ?? {}
+    const parsed = TeamStatsSchema.safeParse(raw)
+
+    if (!parsed.success) {
+      return { 
+        data: null, 
+        success: false, 
+        message: "Invalid payload from upstream" 
+      }
     }
 
-    return { data: json.data, success: true }
-  } catch {
-    return { data: null, success: false, message: "network/timeout" }
+    const compact = toFormAndRecord(parsed.data)
+    
+    return { 
+      data: compact, 
+      success: true 
+    }
+
+  } catch (error) {
+    console.error("Team Stats Fetch Error:", error)
+    return { 
+      data: null, 
+      success: false, 
+      message: "Upstream failure" 
+    }
   }
 }

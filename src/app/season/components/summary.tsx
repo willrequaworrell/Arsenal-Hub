@@ -1,4 +1,4 @@
-"use client"
+
 
 type SeasonSummaryProps = {
   played: number
@@ -19,6 +19,7 @@ export default function SeasonSummary({
   totalGoalsAgainst,
   goalDifference,
 }: SeasonSummaryProps) {
+  // Calculations run on the server
   const points = wins * 3 + draws
   const ppg = played > 0 ? (points / played).toFixed(2) : "0.00"
 
@@ -44,7 +45,7 @@ export default function SeasonSummary({
         </div>
 
         <div className="rounded-lg bg-slate-50 p-4">
-          <div className="flex w-full rounded-lg overflow-hidden">
+          <div className="flex w-full rounded-sm overflow-hidden h-8">
             <div 
               className="bg-green-600 flex items-center justify-center text-white font-semibold text-sm transition-all hover:brightness-110"
               style={{ width: `${winPercent}%` }}
@@ -69,7 +70,7 @@ export default function SeasonSummary({
 
           <div className="flex justify-between mt-3 text-xs text-slate-500">
             <span>{played} games played</span>
-            <span>{((wins / played) * 100).toFixed(1)}% win rate</span>
+            <span>{played > 0 ? ((wins / played) * 100).toFixed(1) : 0}% win rate</span>
           </div>
         </div>
       </div>
@@ -86,7 +87,7 @@ export default function SeasonSummary({
         </div>
 
         <div className="rounded-lg bg-slate-50 p-4">
-          <div className="flex w-full rounded-lg overflow-hidden">
+          <div className="flex w-full rounded-sm overflow-hidden h-8">
             <div 
               className="bg-green-600 flex items-center justify-center text-white font-semibold text-sm transition-all hover:brightness-110"
               style={{ width: `${gfPercent}%` }}
@@ -103,8 +104,8 @@ export default function SeasonSummary({
           </div>
 
           <div className="flex justify-between mt-3 text-xs text-slate-500">
-            <span>{(totalGoalsFor / played).toFixed(1)} goals/game</span>
-            <span>{(totalGoalsAgainst / played).toFixed(1)} conceded/game</span>
+            <span>{played > 0 ? (totalGoalsFor / played).toFixed(1) : 0} goals/game</span>
+            <span>{played > 0 ? (totalGoalsAgainst / played).toFixed(1) : 0} conceded/game</span>
           </div>
         </div>
       </div>

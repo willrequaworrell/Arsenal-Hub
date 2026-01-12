@@ -1,10 +1,10 @@
-// app/(season)/components/stats.tsx
 import CardContainer from "@/components/ui/custom/card-container"
 import { Fixture } from "@/lib/schemas/fixtures"
 import LeaguePositionChart from "./position-over-time-chart"
 import HomeAwayRadar from "./home-away-radar"
 import { DEFAULT_TEAM_ID } from "@/lib/config/api-football"
 import SeasonSummary from "./summary"
+import { calculateSeasonSummary } from "../util/calculate-season-summary"
 
 type StatsProps = {
   teamFixtures: Fixture[]
@@ -12,41 +12,19 @@ type StatsProps = {
 }
 
 export default function Stats({ teamFixtures, allFixtures }: StatsProps) {
-  // Calculate basic stats
-  const finishedMatches = teamFixtures.filter(f => 
-    ["FT", "AET", "PEN"].includes(f.fixture.status.short)
-  )
   
-  const played = finishedMatches.length
-  
-  const wins = finishedMatches.filter(f => {
-    const isHome = f.teams.home.id === Number(DEFAULT_TEAM_ID)
-    const homeWin = (f.goals.home ?? 0) > (f.goals.away ?? 0)
-    const awayWin = (f.goals.away ?? 0) > (f.goals.home ?? 0)
-    return (isHome && homeWin) || (!isHome && awayWin)
-  }).length
-
-  const draws = finishedMatches.filter(f => 
-    f.goals.home === f.goals.away
-  ).length
-
-  const losses = played - wins - draws
-
-  const totalGoalsFor = finishedMatches.reduce((sum, f) => {
-    const isHome = f.teams.home.id === Number(DEFAULT_TEAM_ID)
-    return sum + (isHome ? (f.goals.home ?? 0) : (f.goals.away ?? 0))
-  }, 0)
-
-  const totalGoalsAgainst = finishedMatches.reduce((sum, f) => {
-    const isHome = f.teams.home.id === Number(DEFAULT_TEAM_ID)
-    return sum + (isHome ? (f.goals.away ?? 0) : (f.goals.home ?? 0))
-  }, 0)
-
-  const goalDifference = totalGoalsFor - totalGoalsAgainst
+  const { 
+    played, 
+    wins, 
+    draws, 
+    losses, 
+    totalGoalsFor, 
+    totalGoalsAgainst, 
+    goalDifference 
+  } = calculateSeasonSummary(teamFixtures, Number(DEFAULT_TEAM_ID))
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      {/* Season Summary - NEW VISUAL */}
       <CardContainer title="SEASON SUMMARY" className="p-6">
         <SeasonSummary
           played={played}
@@ -59,7 +37,6 @@ export default function Stats({ teamFixtures, allFixtures }: StatsProps) {
         />
       </CardContainer>
 
-      {/* League Position Over Time */}
       <CardContainer title="LEAGUE POSITION OVER TIME" className="p-6">
         <LeaguePositionChart 
           fixtures={allFixtures} 
@@ -67,7 +44,6 @@ export default function Stats({ teamFixtures, allFixtures }: StatsProps) {
         />
       </CardContainer>
 
-      {/* Home/Away Performance */}
       <CardContainer title="HOME VS. AWAY" className="p-6">
         <HomeAwayRadar 
           fixtures={teamFixtures} 
