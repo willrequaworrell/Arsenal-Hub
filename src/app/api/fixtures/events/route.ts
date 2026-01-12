@@ -3,50 +3,40 @@ import { FixtureEventsSchema } from '@/lib/schemas/fixture-events'
 import { validateAPIFootballResponse } from '@/lib/api-football/validate-response'
 import { NextResponse } from 'next/server'
 
-export const revalidate = 300 // 5 minutes
+// Cache this endpoint for 1 hour
+export const revalidate = 3600
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const fixtureId = searchParams.get('fixtureId')
 
   if (!fixtureId) {
-    return NextResponse.json(
-      { ok: false, error: 'fixtureId is required' },
-      { status: 400 }
-    )
+    return NextResponse.json({ ok: false, error: 'fixtureId is required' }, { status: 400 })
   }
 
   try {
-    const data = await fetchFromAPIFootball('/fixtures/events', {
-      fixture: fixtureId,
-    })
+    // Upstream call with heavy caching
+    const data = await fetchFromAPIFootball(
+      '/fixtures/events', 
+      { fixture: fixtureId },
+      // Cache for 24 hours
+      { revalidate: 86400, tags: [`events-${fixtureId}`] }
+    )
 
-    // Validate API-Football response
     const validation = validateAPIFootballResponse(data)
     if (!validation.valid) {
-      return NextResponse.json(
-        { ok: false, error: validation.error, details: validation.details },
-        { status: validation.details ? 400 : 404 }
-      )
+      return NextResponse.json({ ok: false, error: validation.error }, { status: 400 })
     }
 
     const events = data?.response ?? []
-    
-    // Empty events is OK for some matches (no goals, cards, etc.)
     const parsed = FixtureEventsSchema.safeParse(events)
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid events payload', issues: parsed.error.message },
-        { status: 502 }
-      )
+      return NextResponse.json({ ok: false, error: 'Invalid payload' }, { status: 502 })
     }
 
     return NextResponse.json({ ok: true, data: parsed.data })
   } catch (error) {
-    return NextResponse.json(
-      { ok: false, error: 'Upstream failure' },
-      { status: 502 }
-    )
+    return NextResponse.json({ ok: false, error: 'Upstream failure' }, { status: 502 })
   }
 }

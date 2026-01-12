@@ -1,4 +1,3 @@
-// app/(season)/components/home-away-radar.tsx
 "use client"
 
 import { useMemo } from "react"
@@ -31,7 +30,7 @@ export default function HomeAwayRadar({ fixtures, teamId }: HomeAwayRadarProps) 
 
   return (
     <>
-      {/* Custom Legend - positioned outside chart container */}
+      {/* Legend positioned outside chart container */}
       <div className="mb-3 flex items-center gap-4 rounded-lg bg-slate-50 px-4 py-2.5 w-fit">
         <div className="flex items-center gap-2">
           <div
