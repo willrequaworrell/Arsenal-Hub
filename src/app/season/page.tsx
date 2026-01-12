@@ -3,12 +3,11 @@ import { getFixtures } from "@/lib/data/fixtures"
 import MatchList from "./components/match-list"
 import Stats from "./components/stats"
 
-// app/(season)/page.tsx
 export default async function SeasonPage() {
   // Single fetch for all league fixtures
   const { data: allFixtures, success } = await getFixtures()
 
-  // Filter to team fixtures on server (fast, happens once)
+  // Filter out just team fixtures
   const teamFixtures = allFixtures?.filter(f => 
     f.teams.home.id === Number(DEFAULT_TEAM_ID) || 
     f.teams.away.id === Number(DEFAULT_TEAM_ID)
