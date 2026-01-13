@@ -2,7 +2,29 @@ import { z } from "zod"
 import { getTeamConfig } from "@/lib/config/team"
 import { DEFAULT_TEAM_ID } from "@/lib/config/api-football"
 
+// --- Configuration Constants ---
+
+const REVALIDATE_SECS = 1800 // 30 minutes
+
+// 1. Centralized Exclusions
+// Add terms here to ban them from BOTH APIs and the manual filter
+const EXCLUDED_KEYWORDS = [
+  "Women",
+  "Women's", 
+  "Ladies",
+  "WSL",
+  "W.S.l.",
+  "Female", 
+  "Girl",
+  "Girls",
+]
+
+// 2. Generate Query Strings
+// Result: "-Women -WSL -Ladies ..."
+const EXCLUSION_QUERY_STRING = EXCLUDED_KEYWORDS.map(k => `-${k}`).join(" ")
+
 // --- Types ---
+
 export type NewsArticle = {
   id: string
   title: string
@@ -19,12 +41,11 @@ export type NewsResult = {
   message?: string
 }
 
-// --- Config ---
-const REVALIDATE_SECS = 600 // 10 minutes
 const GUARDIAN_API_KEY = process.env.GUARDIAN_API_KEY
 const NEWS_API_KEY = process.env.NEWS_API_KEY
 
 // --- Schemas ---
+
 const NewsApiArticleSchema = z.object({
   source: z.object({ name: z.string().nullable() }).optional(),
   title: z.string(),
@@ -56,33 +77,31 @@ const GuardianResponseSchema = z.object({
   }),
 })
 
-// --- Helper Functions (Now running directly on Server) ---
+// --- Helper Functions ---
 
 async function fetchGuardianNews(tag: string): Promise<NewsArticle[]> {
   if (!GUARDIAN_API_KEY) return []
 
   try {
     const url = new URL("https://content.guardianapis.com/search")
+    
+    // API-Level Filtering
     url.searchParams.set("tag", tag)
+    // Guardian supports boolean operators in 'q'. 
+    // This combines the Tag (Arsenal) AND the Query (NOT Women...)
+    url.searchParams.set("q", EXCLUSION_QUERY_STRING) 
+    
     url.searchParams.set("show-fields", "thumbnail,trailText")
     url.searchParams.set("page-size", "10") 
     url.searchParams.set("order-by", "newest")
     url.searchParams.set("api-key", GUARDIAN_API_KEY)
 
     const res = await fetch(url.toString(), { next: { revalidate: REVALIDATE_SECS } })
-    
-    if (!res.ok) {
-        console.error(`[Guardian API] Error: ${res.status}`)
-        return []
-    }
+    if (!res.ok) return []
     
     const data = await res.json()
     const parsed = GuardianResponseSchema.safeParse(data)
-
-    if (!parsed.success) {
-      console.error("[Guardian API] Parse Error:", parsed.error)
-      return []
-    }
+    if (!parsed.success) return []
 
     return parsed.data.response.results.map((item) => ({
       id: item.webUrl,
@@ -94,7 +113,7 @@ async function fetchGuardianNews(tag: string): Promise<NewsArticle[]> {
       imageUrl: item.fields?.thumbnail ?? null,
     }))
   } catch (error) {
-    console.error("[Guardian API] Fetch Failed", error)
+    console.error("[Guardian API] Error:", error)
     return []
   }
 }
@@ -113,22 +132,14 @@ async function fetchNewsApi(query: string): Promise<NewsArticle[]> {
     url.searchParams.set("apiKey", NEWS_API_KEY)
 
     const res = await fetch(url.toString(), { next: { revalidate: REVALIDATE_SECS } })
-    
-    if (!res.ok) {
-         console.error(`[NewsAPI] Error: ${res.status}`)
-         return []
-    }
+    if (!res.ok) return []
 
     const data = await res.json()
     const parsed = NewsApiResponseSchema.safeParse(data)
-
-    if (!parsed.success) {
-      console.error("[NewsAPI] Parse Error:", parsed.error)
-      return []
-    }
+    if (!parsed.success) return []
 
     return parsed.data.articles
-      .filter(a => a.title !== "[Removed]")
+      .filter(a => a.title !== "[Removed]" && a.description) 
       .map((item) => ({
         id: item.url,
         title: item.title,
@@ -139,23 +150,30 @@ async function fetchNewsApi(query: string): Promise<NewsArticle[]> {
         imageUrl: item.urlToImage ?? null,
     }))
   } catch (error) {
-    console.error("[NewsAPI] Fetch Failed", error)
+    console.error("[NewsAPI] Error:", error)
     return []
   }
+}
+
+// --- Safety Net Filter (Client-side Logic) ---
+// This catches edge cases where the API search might have been "fuzzy"
+function isExcluded(article: NewsArticle): boolean {
+  const text = (article.title + " " + article.summary).toLowerCase()
+  // Check against our centralized list
+  return EXCLUDED_KEYWORDS.some(keyword => text.includes(keyword.toLowerCase()))
 }
 
 // --- Main Export ---
 
 export const getTeamNews = async (teamId: string = DEFAULT_TEAM_ID): Promise<NewsResult> => {
   const teamConfig = getTeamConfig(teamId)
-  
-  // 1. Prepare Queries
   const baseName = teamConfig.name
-  const newsApiQuery = `"${baseName}" AND (League OR Football OR Soccer OR FC) -Women -WSL -Ladies`
   const guardianTag = teamConfig.guardianTag || "football/football"
 
+  // Construct NewsAPI Query: "Arsenal" AND (League OR ...) -Women -WSL ...
+  const newsApiQuery = `"${baseName}" AND (League OR Football OR Transfer) ${EXCLUSION_QUERY_STRING}` 
+
   try {
-    // 2. Parallel Fetch directly from upstream
     const [guardianResults, newsApiResults] = await Promise.allSettled([
       fetchGuardianNews(guardianTag),
       fetchNewsApi(newsApiQuery),
@@ -164,17 +182,23 @@ export const getTeamNews = async (teamId: string = DEFAULT_TEAM_ID): Promise<New
     const guardianArticles = guardianResults.status === "fulfilled" ? guardianResults.value : []
     const otherArticles = newsApiResults.status === "fulfilled" ? newsApiResults.value : []
 
-    // 3. Combine & Deduplicate
+    // 1. Combine
     let allArticles = [...guardianArticles, ...otherArticles]
-    const seenUrls = new Set()
     
+    // 2. Final Safety Filter
+    // Even with API parameters, sometimes search indexes are weird. 
+    // This double-checks the actual content before showing it.
+    allArticles = allArticles.filter(article => !isExcluded(article))
+
+    // 3. Deduplicate by URL
+    const seenUrls = new Set()
     allArticles = allArticles.filter(article => {
       if (seenUrls.has(article.url)) return false
       seenUrls.add(article.url)
       return true
     })
 
-    // 4. Sort
+    // 4. Sort Newest First
     allArticles.sort((a, b) => 
       new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     )
@@ -182,7 +206,6 @@ export const getTeamNews = async (teamId: string = DEFAULT_TEAM_ID): Promise<New
     return { data: allArticles, success: true }
 
   } catch (error) {
-    console.error("News Aggregation Error:", error)
-    return { data: null, success: false, message: "Failed to aggregate news" }
+    return { data: null, success: false, message: "Failed to load news" }
   }
 }
